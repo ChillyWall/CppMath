@@ -1,0 +1,115 @@
+#include "discrete_math.h"
+
+template <typename Integer>
+Integer gcd(Integer a, Integer b) {
+    if (a < b) {
+        Integer c = a;
+        a = b;
+        b = c;
+    }
+    while (b > 0) {
+        Integer c = b;
+        b = a % b;
+        a = c;
+    }
+    return a;
+}
+
+template <typename Integer>
+Integer lcm(Integer a, Integer b) {
+    return a * b / gcd(a, b);
+}
+
+template <typename Integer>
+eul<Integer> exp_eul(Integer a, Integer b) {
+    typedef Matrix<Integer> Mat;
+    bool if_exchange = false;
+    if (a < b) {
+        Integer c = a;
+        a = b;
+        b = c;
+        if_exchange = true;
+    }
+    Mat M(2, 2, { 1, 0, 0, 1 });
+    while (b > 0) {
+        Integer c = b;
+        M = M * Mat(2, 2, { 0, 1, 1, -div(a, b) });
+        b = a % b;
+        a = c;
+    }
+    eul<Integer> res;
+    res.r = a;
+    if (if_exchange) {
+        res.s = M(1, 0);
+        res.t = M(0, 0);
+        res.p = Abs(M(1, 1));
+        res.q = Abs(M(0, 1));
+    } else {
+        res.s = M(0, 0);
+        res.t = M(1, 0);
+        res.p = Abs(M(0, 1));
+        res.q = Abs(M(1, 1));
+    }
+    return res;
+}
+
+
+// 返回值为正数，若返回-1z则表明a模m的逆不存在
+template <typename Integer>
+Integer inverse_mod(Integer a, Integer m) {
+    Integer q, s;
+    Integer mid = m;
+    m = a;
+    a = mid % a;
+    s = -div(mid, a);
+    q = Integer(1);
+    while (a != 0) {
+        Integer mid1 = m;
+        m = a;
+        a = mod(m, a);
+        Integer mid2 = s;
+        s = q - div(mid, a) * s;
+        q = mid2;
+    }
+    if (m != 1) {
+        return Integer(0);
+    } else {
+        return q;
+    }
+}
+
+// 返回值为正数，若返回-1则表明方程不可解
+template <typename Integer>
+Integer solve_lin_cong(Integer a, Integer b, Integer m) {
+    Integer x;
+    auto a_ = inverse_mod(a, m);
+    if (a_ == -1) {
+        x = -1;
+    } else {
+        x = b * mod(a_, m);
+    }
+    return x;
+}
+
+template <typename Integer>
+Integer solve_lin_congs(std::initializer_list<Integer>& a, std::initializer_list<Integer>& m) {
+    Integer M = 1;
+    for (auto i = m.begin(); i < m.end(); i++) {
+        M *= *i;
+    }
+    Integer x = 0;
+    for (auto i = m.begin(), j = a.begin();i < m.end() and j < a.end(); i++, j++) {
+        Integer mi = M / *i;
+        Integer y = inverse_mod(mi, *i);
+        if (y != -1) {
+            x += mi * y * (*j);
+        } else {
+            x = -1;
+            break;
+        }
+    }
+    if (x != -1) {
+        x %= M;
+    }
+    return x;
+}
