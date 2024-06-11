@@ -17,14 +17,21 @@ private:
         }
     }
 
+    bool if_zero() const {
+        bool res = false;
+        if (nums_.size() == 1 && nums_.back() == 0) {
+            res = true;
+        }
+        return res;
+    }
+
 public:
     Integer() {
         nums_ = std::deque<short>();
         sign_ = true;
     }
 
-    ~Integer() {
-    }
+    ~Integer() {}
 
     explicit Integer(long long num) {
         nums_ = std::deque<short>();
@@ -42,7 +49,7 @@ public:
         return nums_.size();
     }
 
-    bool positive() {
+    bool positive() const {
         return sign_;
     }
 
@@ -85,7 +92,10 @@ public:
     friend Integer operator-(const Integer& a, const Integer& b);
     friend Integer operator*(const Integer& a, const Integer& b);
     friend Integer operator/(const Integer& a, const Integer& b);
-    friend Integer operator%(const Integer& a, const Integer& b);
+
+    friend Integer operator%(const Integer& a, const Integer& b) {
+        return a - (a / b) * b;
+    }
 
     friend Integer operator-(const Integer& a) {
         Integer minus_a = a;
@@ -93,11 +103,30 @@ public:
         return minus_a;
     }
 
-    Integer& operator+=(Integer a);
-    Integer& operator-=(Integer a);
-    Integer& operator*=(Integer a);
-    Integer& operator/=(Integer a);
-    Integer& operator%=(Integer a);
+    Integer& operator+=(Integer a) {
+        *this = *this + a;
+        return *this;
+    }
+
+    Integer& operator-=(Integer a) {
+        *this = *this - a;
+        return *this;
+    }
+
+    Integer& operator*=(Integer a) {
+        *this = *this * a;
+        return *this;
+    }
+
+    Integer& operator/=(Integer a) {
+        *this = *this / a;
+        return *this;
+    }
+
+    Integer& operator%=(Integer a) {
+        *this = *this % a;
+        return *this;
+    }
 
     friend bool operator>(const Integer& a, const Integer& b);
     friend bool operator<(const Integer& a, const Integer& b) {
@@ -115,6 +144,8 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Integer& num);
+
+    friend class Real;
 };
 
 

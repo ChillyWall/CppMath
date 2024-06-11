@@ -5,7 +5,7 @@ Integer::Integer(const std::string& str) {
     sign_ = true;
     for (auto itr = str.rbegin(); itr < str.rend(); itr++) {
         if (isdigit(*itr)) {
-            nums_.push_back(*itr-48);
+            nums_.push_back(*itr - 48);
         } else if (*itr == '-') {
             sign_ = false;
         }
@@ -103,7 +103,7 @@ Integer operator*(const Integer& a, const Integer& b) {
 
 Integer operator/(const Integer& a, const Integer& b) {
     Integer res;
-    if (b == Integer('0')) {
+    if (b == Integer("0")) {
         std::cout << "Wrong, the b should not be 0." << std::endl;
         return res;
     }
@@ -132,40 +132,11 @@ Integer operator/(const Integer& a, const Integer& b) {
             num1.nums_.insert(num1.nums_.end(), opnd1.nums_.begin(), opnd1.nums_.end());
         }
     } else {
-        res = Integer('0');
+        res = Integer("0");
     }
     res.remove_zeros();
     res.sign_ = a.sign_ == b.sign_;
     return res;
-}
-
-Integer operator%(const Integer& a, const Integer& b) {
-    return a - (a / b) * b;
-}
-
-Integer& Integer::operator+=(Integer a) {
-    *this = *this + a;
-    return *this;
-}
-
-Integer& Integer::operator-=(Integer a) {
-    *this = *this - a;
-    return *this;
-}
-
-Integer& Integer::operator*=(Integer a) {
-    *this = *this * a;
-    return *this;
-}
-
-Integer& Integer::operator/=(Integer a) {
-    *this = *this / a;
-    return *this;
-}
-
-Integer& Integer::operator%=(Integer a) {
-    *this = *this % a;
-    return *this;
 }
 
 bool operator==(const Integer& a, const Integer& b) {
@@ -174,6 +145,9 @@ bool operator==(const Integer& a, const Integer& b) {
         res = false;
     } else if (a.sign_ != b.sign_) {
         res = false;
+        if (a.if_zero() && b.if_zero()) {
+            res = true;
+        }
     } else {
         for (size_t i = 0; i < a.size(); i++) {
             if (a[i] != b[i]) {
@@ -182,36 +156,36 @@ bool operator==(const Integer& a, const Integer& b) {
             }
         }
     }
-    if (a.size() == 1 and a[0] == 0 and b.size() == 1 and b[0] == 0)
-        res = true;
+
+    
 
     return res;
 }
 
 bool operator>(const Integer& a, const Integer& b) {
-    bool res=false;
-    if (a == b) {
-        res = false;
+    bool res = false;
+
+    if (a.sign_ != b.sign_) {
+        res = a.sign_;
+    } else if (a.size() > b.size()) {
+        res = a.sign_;
+    } else if (a.size() < b.size()) {
+        res = not a.sign_;
     } else {
-        if (a.sign_ != b.sign_) {
-            res = a.sign_;
-        } else if (a.size() > b.size()) {
-            res = a.sign_;
-        } else if (a.size() < b.size()) {
-            res = not a.sign_;
-        } else {
-            for (size_t i = 0; i < a.size(); i++) {
-                short num1 = a[a.size() - 1 - i];
-                short num2 = b[a.size() - 1 - i];
-                if (num1 > num2) {
-                    res = true;
-                    break;
-                } else if (num1 < num2) {
-                    res = false;
-                    break;
-                }
+        for (size_t i = 0; i < a.size(); i++) {
+            short num1 = a[a.size() - 1 - i];
+            short num2 = b[a.size() - 1 - i];
+            if (num1 > num2) {
+                res = a.sign_;
+                break;
+            } else if (num1 < num2) {
+                res = !a.sign_;
+                break;
             }
         }
+    }
+    if (a.if_zero() && b.if_zero()) {
+        res = false;
     }
     return res;
 }

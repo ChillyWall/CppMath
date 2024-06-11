@@ -3,7 +3,7 @@
 
 #include <array>
 #include <initializer_list>
-#include "../Matrix/Matrix.h"
+#include "Matrix.h"
 
 template <typename Integer>
 Integer gcd(Integer a, Integer b);
