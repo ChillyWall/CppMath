@@ -1,6 +1,6 @@
 #include "Real.h"
 
-size_t Real::default_adding_digits = 10;
+size_t Real::max_length = Real::default_max_length;
 
 Real::Real(const std::string& str, long long point) {
     num_ = Integer(str);
@@ -101,10 +101,19 @@ Real operator*(const Real& a, const Real& b) {
 
 Real operator/(const Real& a, const Real& b) {
     Real res(a);
-    res.move_point(a.default_adding_digits);
+    if (a.size() >= b.size()) {
+        size_t digits = a.size() - b.size();
+        if (digits < Real::max_length) {
+            res.move_point(Real::max_length - digits - 1);
+        }
+    } else {
+        size_t digits = b.size() - a.size();
+        res.move_point(Real::max_length + digits - 1);
+    }
     res.num_ /= b.num_;
     res.point_ += b.point_;
     res.remove_zeros();
+    Real::max_length = Real::default_max_length;
     return res;
 }
 

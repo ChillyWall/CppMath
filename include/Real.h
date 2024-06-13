@@ -26,7 +26,8 @@ private:
         return res;
     }
 
-    static size_t default_adding_digits;
+    static const size_t default_max_length = 20;
+    static size_t max_length;
 
 public:
     Real() {
@@ -59,6 +60,12 @@ public:
             return num_[index + size() - 1 - point_];
         } else {
             return 0;
+        }
+    }
+
+    void shrink(size_t digits) {
+        while (num_.size() > digits) {
+            num_.nums_.pop_front();
         }
     }
 
