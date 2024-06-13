@@ -23,7 +23,7 @@ class Matrix {
     using ptr = std::unique_ptr<Tp>;
     typedef std::initializer_list<T> ild;
     typedef std::vector<T> vd;
-    typedef ptr<T []> pd;
+    typedef ptr<T* []> pd;
 
     size_t m_;
     size_t n_;

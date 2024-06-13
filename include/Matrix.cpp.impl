@@ -9,7 +9,10 @@ Matrix<T>::Matrix(size_t m, size_t n) {
     m_ = m;
     n_ = n;
     size_ = m_ * n_;
-    data_ = pd(new T[size_]);
+    data_ = pd(new T * [size_]);
+    for (size_t i = 0; i < size_; i++) {
+        data_[i] = nullptr;
+    }
 }
 
 /// @brief 初始化矩阵
@@ -22,7 +25,10 @@ Matrix<T>::Matrix(size_t m, size_t n, ild data) {
     m_ = m;
     n_ = n;
     size_ = m_ * n_;
-    data_ = pd(new T[size_]);
+    data_ = pd(new T * [size_]);
+    for (size_t i = 0; i < size_; i++) {
+        data_[i] = nullptr;
+    }
     set(data);
 }
 
@@ -36,7 +42,10 @@ Matrix<T>::Matrix(size_t m, size_t n, T filling) {
     m_ = m;
     n_ = n;
     size_ = m_ * n_;
-    data_ = pd(new T[size_]);
+    data_ = pd(new T * [size_]);
+    for (size_t i = 0; i < size_; i++) {
+        data_[i] = nullptr;
+    }
     fill(filling);
 }
 
@@ -48,9 +57,14 @@ Matrix<T>::Matrix(const Matrix<T>& M) {
     m_ = M.m_;
     n_ = M.n_;
     size_ = m_ * n_;
-    data_ = pd(new T[size_]);
+    data_ = pd(new T* [size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = M.data_[i];
+        if (M.data_[i]) {
+            data_[i] = new T();
+            *data_[i] = *M.data_[i];
+        } else {
+            data_[i] = nullptr;
+        }
     }
 }
 
@@ -78,9 +92,9 @@ void Matrix<T>::set(ild data) {
         throw std::out_of_range("。");
     auto itr = data.begin();
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = *(itr++);
+        data_[i] = new T();
+        *data_[i] = *(itr++);
     }
-
 }
 
 /// @brief 设置矩阵元素。
@@ -91,7 +105,8 @@ void Matrix<T>::set(vd data) {
     length_check(data.size());
     auto itr = data.begin();
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = *(itr++);
+        data_[i] = new T();
+        *data_[i] = *(itr++);
     }
 }
 
@@ -101,7 +116,8 @@ void Matrix<T>::set(vd data) {
 template <typename T>
 void Matrix<T>::fill(const T& filling) {
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = filling;
+        data_[i] = new T();
+        *data_[i] = filling;
     }
 }
 
@@ -131,7 +147,10 @@ T& Matrix<T>::operator()(size_t i, size_t j) {
         throw std::out_of_range("Matrix::operator(): i >= this->m()");
     if (j >= n_)
         throw std::out_of_range("Matrix::operator(): j >= this->n()");
-    return data_[i * n_ + j];
+    if (data_[i * n_ + j])
+        return *data_[i * n_ + j];
+    else
+        return T(0);
 }
 
 /// @brief 深复制矩阵，不改变被复制矩阵
