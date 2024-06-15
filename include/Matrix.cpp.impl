@@ -11,7 +11,8 @@ Matrix<T>::Matrix(size_t m, size_t n) {
     size_ = m_ * n_;
     data_ = pd(new T * [size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = nullptr;
+        data_[i] = new T;
+        *(data_[i]) = T(0);
     }
 }
 
@@ -27,7 +28,8 @@ Matrix<T>::Matrix(size_t m, size_t n, ild data) {
     size_ = m_ * n_;
     data_ = pd(new T * [size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = nullptr;
+        data_[i] = new T;
+        *(data_[i]) = T(0);
     }
     set(data);
 }
@@ -44,7 +46,8 @@ Matrix<T>::Matrix(size_t m, size_t n, T filling) {
     size_ = m_ * n_;
     data_ = pd(new T * [size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = nullptr;
+        data_[i] = new T;
+        *(data_[i]) = T(0);
     }
     fill(filling);
 }
@@ -63,7 +66,8 @@ Matrix<T>::Matrix(const Matrix<T>& M) {
             data_[i] = new T();
             *data_[i] = *M.data_[i];
         } else {
-            data_[i] = nullptr;
+            data_[i] = new T;
+            *(data_[i]) = T(0);
         }
     }
 }
@@ -147,10 +151,7 @@ T& Matrix<T>::operator()(size_t i, size_t j) {
         throw std::out_of_range("Matrix::operator(): i >= this->m()");
     if (j >= n_)
         throw std::out_of_range("Matrix::operator(): j >= this->n()");
-    if (data_[i * n_ + j])
-        return *data_[i * n_ + j];
-    else
-        return T(0);
+    return *data_[i * n_ + j];
 }
 
 /// @brief 深复制矩阵，不改变被复制矩阵
@@ -222,7 +223,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {
     for (size_t i = 0; i < m_; i++) {
         for (size_t j = 0; j < M.n_; j++) {
             for (size_t k = 0; k < n_; k++) {
-                A.data_[i * M.n_ + j] += data_[i * n_ + k] * M.data_[k * M.n_ + j];
+                *A.data_[i * M.n_ + j] += (* data_[i * n_ + k]) * (* M.data_[k * M.n_ + j]);
             }
         }
     }
@@ -708,9 +709,4 @@ int rank(Matrix<T> M) {
         }
     }
     return rank;
-}
-
-template <typename T>
-Matrix<T> solve(Matrix<T> A, Matrix<T> b) {
-
 }

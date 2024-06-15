@@ -1,26 +1,13 @@
-#include "Real.h"
+#include "include/Matrix.h"
 #include <iostream>
 
 using namespace std;
 
 void test() {
-    Real pi("3.141592653589793238462643383279502");
-    Real e("-2.71828");
-    Real a("1232110940");
-    Real b("0.000133423");
-    Real sum = pi + e;
-    Real dif = pi - e;
-    Real prod = pi * e;
-    Real div = pi / e;
-    cout << pi << endl
-        << e << endl
-        << a << endl
-        << b << endl;
-
-    cout << sum << endl
-        << pi - e << endl
-        << pi * e << endl
-        << pi / e << endl;
+    Matrix<double> A = rand_real_matrix<double>(5, 5);
+    Matrix<double> B = inverse(A);
+    Matrix<double> C = A * B;
+    cout << A << endl << B << endl << C << endl;
 }
 
 int main() {
