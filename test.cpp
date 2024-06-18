@@ -1,13 +1,12 @@
-#include "include/Matrix.h"
+#include "Matrix.h"
+#include "Real.h"
 #include <iostream>
 
 using namespace std;
 
 void test() {
-    Matrix<double> A = rand_real_matrix<double>(5, 5);
-    Matrix<double> B = inverse(A);
-    Matrix<double> C = A * B;
-    cout << A << endl << B << endl << C << endl;
+    auto a = rand_real_matrix<Real>(5, 5);
+    cout << a << endl;
 }
 
 int main() {

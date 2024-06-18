@@ -331,8 +331,7 @@ std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) {
     for (size_t i = 0; i < M.m(); i++) {
         for (size_t j = 0; j < M.n(); j++) {
             os.width(10);
-            os.precision(4);
-            os << std::fixed << M(i, j);
+            os << M(i, j);
         }
         os << endl;
     }
@@ -383,7 +382,7 @@ Matrix<T> rand_real_matrix(size_t m, size_t n) {
     Matrix<T> M(m, n);
     std::default_random_engine e;
     e.seed(std::time(0));
-    std::uniform_real_distribution<T> s(-1, 1);
+    std::uniform_real_distribution<double> s(-1.0, 1.0);
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
             M(i, j) = s(e);
@@ -423,7 +422,7 @@ LU_comp<T> LU(const Matrix<T>& M) {
     for (size_t i = 1; i < n; i++) {
         for (size_t j = 0; j < i; j++) {
             l = res.U(i, j) / res.U(j, j);
-            if (l == 0) {
+            if (l == T(0)) {
                 throw std::invalid_argument("The matrix is indecomposable.");
             }
             res.L(i, j) = l;
@@ -450,7 +449,7 @@ LDU_comp<T> LDU(const Matrix<T>& M) {
     for (size_t i = 1; i < n; i++) {
         for (size_t j = 0; j < i; j++) {
             l = res.U(i, j) / res.U(j, j);
-            if (l == 0) {
+            if (l == T(0)) {
                 throw std::invalid_argument("The matrix is indecomposable.");
             }
             res.L(i, j) = l;
@@ -503,7 +502,7 @@ PLU_comp<T> PLU(const Matrix<T>& M) {
             }
         }
 
-        if (var1 == 0)
+        if (var1 == T(0))
             throw std::invalid_argument("The matrix is indecomposable.");
 
         // 换行
@@ -569,7 +568,7 @@ Matrix<T> inverse(Matrix<T> M) {
             }
         }
 
-        if (var1 == 0)
+        if (var1 == T(0))
             throw std::invalid_argument("M is indecomposable.");
 
         // 换行
@@ -599,7 +598,7 @@ Matrix<T> inverse(Matrix<T> M) {
     for (size_t i = 1, ii = n - 2; i < n; i++, ii--) {
         for (size_t j = 0, jj = n - 1; j < i; j++, jj--) {
             l = M(ii, jj) / M(jj, jj);
-            M(ii, jj) = 0;
+            M(ii, jj) = T(0);
             for (size_t k = 0; k < n; k++) {
                 inv(ii, k) -= inv(jj, k) * l;
             }
@@ -632,7 +631,7 @@ T det(Matrix<T> M) {
             }
         }
 
-        if (var1 == 0)
+        if (var1 == T(0))
             determinant = T(0);
 
         // 换行
@@ -677,7 +676,7 @@ int rank(Matrix<T> M) {
             }
         }
 
-        if (var1 == 0) {
+        if (var1 == T(0)) {
             if (i == m - 1) {
                 for (size_t j = m; j < n; j++) {
                     if (M(i, j) != 0) {

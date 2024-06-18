@@ -104,7 +104,7 @@ Integer operator*(const Integer& a, const Integer& b) {
 Integer operator/(const Integer& a, const Integer& b) {
     Integer res;
     if (b == Integer("0")) {
-        std::cout << "Wrong, the b should not be 0." << std::endl;
+        std::invalid_argument("Wrong, the b should not be 0.");
         return res;
     }
 

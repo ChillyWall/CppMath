@@ -123,7 +123,7 @@ Matrix<T> exchange_rows(std::vector<size_t> P, Matrix<T>& M);
 
 template <typename T>
 inline T abs(const T& n) {
-    return n < 0 ? (-n) : n;
+    return n < T(0) ? (-n) : n;
 }
 
 template <typename T>

@@ -26,7 +26,7 @@ private:
         return res;
     }
 
-    static const size_t default_max_length = 20;
+    static const size_t default_max_length = 10;
     static size_t max_length;
 
 public:
@@ -36,8 +36,19 @@ public:
     }
 
     ~Real() {}
+    explicit Real(int num, long long point = 0) {
+        *this = Real(std::to_string(num), point);
+    }
 
     explicit Real(long long num, long long point = 0) {
+        *this = Real(std::to_string(num), point);
+    }
+
+    explicit Real(long double num, long long point = 0) {
+        *this = Real(std::to_string(num), point);
+    }
+
+    explicit Real(double num, long long point = 0) {
         *this = Real(std::to_string(num), point);
     }
 
@@ -69,7 +80,16 @@ public:
         }
     }
 
+    void expand(size_t digits) {
+        move_point(digits);
+    }
+
     Real& operator=(long long num) {
+        *this = Real(std::to_string(num));
+        return *this;
+    }
+
+    Real& operator=(int num) {
         *this = Real(std::to_string(num));
         return *this;
     }
@@ -81,6 +101,16 @@ public:
 
     Real& operator=(const std::string& str_num) {
         *this = Real(str_num);
+        return *this;
+    }
+
+    Real& operator=(double num) {
+        *this = Real(num);
+        return *this;
+    }
+
+    Real& operator=(long double num) {
+        *this = Real(num);
         return *this;
     }
 

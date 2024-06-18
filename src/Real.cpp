@@ -8,7 +8,8 @@ Real::Real(const std::string& str, long long point) {
         num_.nums_.pop_back();
     }
 
-    long long first_num, pt = 0;
+    long long first_num = 0;
+    long long pt = 0;
     long long posi = 0;
     bool has_first_num = false;
     bool has_point = false;
@@ -101,15 +102,6 @@ Real operator*(const Real& a, const Real& b) {
 
 Real operator/(const Real& a, const Real& b) {
     Real res(a);
-    if (a.size() >= b.size()) {
-        size_t digits = a.size() - b.size();
-        if (digits < Real::max_length) {
-            res.move_point(Real::max_length - digits - 1);
-        }
-    } else {
-        size_t digits = b.size() - a.size();
-        res.move_point(Real::max_length + digits - 1);
-    }
     res.num_ /= b.num_;
     res.point_ += b.point_;
     res.remove_zeros();
@@ -159,7 +151,7 @@ std::ostream& operator<<(std::ostream& os, const Real& num) {
     }
     long long beg, stop;
     beg = std::max(0ll, num.point_);
-    stop = std::min(0ll, num.point_ - (long long)num.size() + 1);
+    stop = std::min(0ll, num.point_ - (long long) num.size() + 1);
     for (long long i = beg; i >= stop; i--) {
         std::cout << num[i];
         if (i == 0 && i != stop) {
