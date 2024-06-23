@@ -125,7 +125,7 @@ Real operator-(const Real& a, const Real& b) {
         step = b_beg - a_beg;
         res = b;
         res.add_zeros(step);
-        res.num_ -= a.num_;
+        res.num_ = a.num_ - res.num_;
         res.point_ += res.size() - b.size() - step;
     } else {
         res.num_ = a.num_ - b.num_;

@@ -592,14 +592,16 @@ Matrix<T> inverse(const Matrix<T>& Mat) {
                 M(j, k) -= M(i, k) * var2;
             }
         }
+        cout << "M: " << endl << M << endl << "inv:" << endl << inv << endl;
     }
+    cout << "The original: " << endl << M << endl << "The inverse: " << endl << inv << endl;
     // back subtract
     for (size_t i = 1, ii = n - 2; i < n; i++, ii--) {
         for (size_t j = 0, jj = n - 1; j < i; j++, jj--) {
-            l = M(ii, jj) / M(jj, jj);
+            var2 = M(ii, jj) / M(jj, jj);
             M(ii, jj) = T(0);
             for (size_t k = 0; k < n; k++) {
-                inv(ii, k) -= inv(jj, k) * l;
+                inv(ii, k) -= inv(jj, k) * var2;
             }
         }
     }

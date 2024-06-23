@@ -63,9 +63,7 @@ Integer operator-(const Integer& a, const Integer& b) {
         Integer num2(b.abs());
         bool sign = a.sign_;
         if (num1 < num2) {
-            Integer mid = num1;
-            num1 = num2;
-            num2 = mid;
+            std::swap(num1, num2);
             sign = !sign;
         }
         short next = 0;
@@ -95,7 +93,6 @@ Integer Integer::multiply_single(short opnd) const {
         return this->abs();
     } else if (opnd > 1 && opnd < 10) {
         Integer prod;
-        prod.sign_ = true;
         short carry = 0;
         for (size_t j = 0; j < size(); j++) {
             short product = this->operator[](j) * opnd + carry;
