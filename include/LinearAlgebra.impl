@@ -1,4 +1,4 @@
-#include "Matrix.h"
+#include "LinearAlgebra.h"
 
 /// @brief 分配内存，未初始化元素值
 /// @tparam T 元素的类型
@@ -615,7 +615,7 @@ Matrix<T> inverse(const Matrix<T>& Mat) {
 
 template <typename T>
 T determinant(Matrix<T> M) {
-    if (M.m() != M.n())
+    if (!if_square(M))
         throw std::invalid_argument("M should be square matrix.");
     size_t n = M.n();
     T determinant;
@@ -633,8 +633,9 @@ T determinant(Matrix<T> M) {
             }
         }
 
-        if (var1 == T(0))
-            determinant = T(0);
+        if (var1 == T(0)) {
+            return T(0);
+        }
 
         // 换行
         if (i != target) {
@@ -660,10 +661,10 @@ T determinant(Matrix<T> M) {
 }
 
 template <typename T>
-int rank(Matrix<T> M) {
+size_t rank(Matrix<T> M) {
     size_t m = M.m();
     size_t n = M.n();
-    int rank = 0;
+    size_t rank = 0;
     T var1;
     T var2;
     for (size_t i = 0; i < n && i < m; i++) {

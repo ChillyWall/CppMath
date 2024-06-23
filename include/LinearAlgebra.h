@@ -159,7 +159,7 @@ template <typename T>
 T determinant(Matrix<T> M);
 
 template <typename T>
-int rank(Matrix<T> M);
+size_t rank(Matrix<T> M);
 
 template <typename T>
 inline bool if_square(Matrix<T> A) {
@@ -169,6 +169,6 @@ inline bool if_square(Matrix<T> A) {
 template <typename T>
 Matrix<T> solve(Matrix<T> A, Matrix<T> b);
 
-#include "Matrix.cpp.impl"
+#include "LinearAlgebra.impl"
 
 #endif
