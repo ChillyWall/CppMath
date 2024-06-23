@@ -1,10 +1,9 @@
 #include "Real.h"
-
-size_t Real::max_length = Real::default_max_length;
+long long Real::default_precision = 10;
 
 Real::Real(const std::string& str, long long point) {
     num_ = Integer(str);
-    while (num_.nums_.back() == 0 and num_.nums_.size() > 1) {
+    while (num_.nums_.back() == 0 && num_.nums_.size() > 1) {
         num_.nums_.pop_back();
     }
 
@@ -32,80 +31,138 @@ Real::Real(const std::string& str, long long point) {
     }
     remove_zeros();
     point_ = pt - first_num + point;
+    round(-Real::default_precision);
 }
 
-void Real::move_point(size_t step) {
-    num_.nums_.insert(num_.nums_.begin(), step, 0);
+void Real::round(long long digits) {
+    long long dist = point_ - (long long)size() + 1 - digits;
+    if (dist < 0LL) {
+        while (dist < -1) {
+            if (num_.nums_.size() == 1) {
+                num_.nums_.front() = 0;
+                point_ = 0;
+                return ;
+            }
+            num_.nums_.pop_front();
+            dist++;
+        }
+
+        bool if_carry = false;
+        if (num_.nums_.front() == 5) {
+            if (num_.nums_[1] % 2 == 1) {
+                if_carry = true;
+            }
+        } else if (num_.nums_.front() > 5) {
+            if_carry = true;
+        }
+        if (num_.nums_.size() > 1) {
+            num_.nums_.pop_front();
+        } else if (num_.nums_.size() == 1) {
+            num_.nums_.front() = 0;
+            if (!if_carry) {
+                point_ = 0;
+            }   
+        }
+
+        if (if_carry) {
+            num_ += num_.positive() ? Integer(1) : -Integer(1);
+        }
+    }
+    remove_zeros();
 }
 
 Real operator+(const Real& a, const Real& b) {
+    if (a.if_zero()) {
+        return b;
+    } else if (b.if_zero()) {
+        return a;
+    }
     Real res;
-    long long a_beg, b_beg, step;
+    long long a_beg;
+    long long b_beg;
+    long long step;
     a_beg = a.point_ - a.size() + 1;
     b_beg = b.point_ - b.size() + 1;
     if (a_beg > b_beg) {
         step = a_beg - b_beg;
         res = a;
-        res.move_point(step);
+        res.add_zeros(step);
         res.num_ += b.num_;
         res.point_ += res.size() - a.size() - step;
-        res.remove_zeros();
     } else if (a_beg < b_beg) {
         step = b_beg - a_beg;
         res = b;
-        res.move_point(step);
+        res.add_zeros(step);
         res.num_ += a.num_;
         res.point_ += res.size() - b.size() - step;
-        res.remove_zeros();
     } else {
         res.num_ = a.num_ + b.num_;
         res.point_ = res.size() - a.size() + a.point_;
-        res.remove_zeros();
     }
+    res.round(-Real::default_precision);
     return res;
 }
 
 Real operator-(const Real& a, const Real& b) {
+    if (a.if_zero()) {
+        return -b;
+    } else if (b.if_zero()) {
+        return a;
+    }
     Real res;
-    long long a_beg, b_beg, step;
+    long long a_beg;
+    long long b_beg;
+    long long step;
     a_beg = a.point_ - a.size() + 1;
     b_beg = b.point_ - b.size() + 1;
     if (a_beg > b_beg) {
         step = a_beg - b_beg;
         res = a;
-        res.move_point(step);
+        res.add_zeros(step);
         res.num_ -= b.num_;
         res.point_ += res.size() - a.size() - step;
-        res.remove_zeros();
     } else if (a_beg < b_beg) {
         step = b_beg - a_beg;
         res = b;
-        res.move_point(step);
+        res.add_zeros(step);
         res.num_ -= a.num_;
         res.point_ += res.size() - b.size() - step;
-        res.remove_zeros();
     } else {
         res.num_ = a.num_ - b.num_;
         res.point_ = res.size() - a.size() + a.point_;
-        res.remove_zeros();
     }
+    res.round(-Real::default_precision);
     return res;
 }
 
 Real operator*(const Real& a, const Real& b) {
     Real res;
     res.num_ = a.num_ * b.num_;
-    res.point_ = a.point_ + b.point_;
-    res.remove_zeros();
+    res.point_ = a.point_ + b.point_ + (long long)(res.size() - a.size() - b.size()) + 1LL;
+    res.round(-Real::default_precision);
     return res;
 }
 
 Real operator/(const Real& a, const Real& b) {
+    if (b.if_zero()) {
+        throw std::invalid_argument("b should not be 0.");
+    }
+    if (a.if_zero()) {
+        return Real(0);
+    }
     Real res(a);
+    long long dist = a.point_ - b.point_ - (long long)a.size() + Real::default_precision + (long long)b.size() + 2;
+    if (dist > 0LL) {
+        res.add_zeros(dist);
+    } else {
+        res.round(-Real::default_precision - 2);
+    }
+
+    long long diff = res.size() - b.size() + 1;
     res.num_ /= b.num_;
-    res.point_ += b.point_;
-    res.remove_zeros();
-    Real::max_length = Real::default_max_length;
+    diff -= res.size();
+    res.point_ -= b.point_ + diff;
+    res.round(-Real::default_precision);
     return res;
 }
 
@@ -149,9 +206,10 @@ std::ostream& operator<<(std::ostream& os, const Real& num) {
     if (!(num.positive() || num.if_zero())) {
         os << '-';
     }
-    long long beg, stop;
-    beg = std::max(0ll, num.point_);
-    stop = std::min(0ll, num.point_ - (long long) num.size() + 1);
+    long long beg;
+    long long stop;
+    beg = std::max(0LL, num.point_);
+    stop = std::min(0LL, num.point_ - (long long) num.size() + 1);
     for (long long i = beg; i >= stop; i--) {
         std::cout << num[i];
         if (i == 0 && i != stop) {

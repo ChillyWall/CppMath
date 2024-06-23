@@ -18,32 +18,41 @@ struct MatrixShape {
 
 template <typename T>
 class Matrix {
-    private:
+private:
     template <typename Tp>
     using ptr = std::unique_ptr<Tp>;
-    typedef std::initializer_list<T> ild;
-    typedef std::vector<T> vd;
-    typedef ptr<T* []> pd;
+    using ild = std::initializer_list<T>;
+    using vd = std::vector<T>;
+    using pd = ptr<ptr<T> []>;
 
-    size_t m_;
-    size_t n_;
-    size_t size_;
+    size_t m_ = 0;
+    size_t n_ = 0;
+    size_t size_ = 0;
 
     pd data_;
 
     void length_check(size_t n) const;
     void shape_check1(const MatrixShape& sh) const;
 
-    public:
-    Matrix() { m_ = 0; n_ = 0; size_ = 0; data_ = pd(); }
+public:
+    Matrix() : data_{ pd() } {}
     Matrix(size_t m, size_t n);
-    Matrix(size_t m, size_t n, ild data);
-    Matrix(size_t m, size_t n, T filling);
+    Matrix(size_t m, size_t n, const ild& data);
+    Matrix(size_t m, size_t n, const T& filling);
     Matrix(const Matrix<T>& M);
-    ~Matrix() { data_.release(); }
+    Matrix(Matrix<T>&& M) noexcept : m_{ M.m_ }, n_{ M.n_ }, size_{ M.size_ } {
+        data_ = std::move(M.data_);
+    }
+    ~Matrix() {}
 
-    void set(ild data);
-    void set(vd data);
+    void set(size_t m, size_t n, const ild& data) {
+        set(m, n, vd(data));
+    }
+    void set(size_t m, size_t n, ild&& data) noexcept {
+        set(m, n, vd(std::move(data)));
+    }
+    void set(size_t m, size_t n, const vd& data);
+    void set(size_t m, size_t n, vd&& data) noexcept;
     void fill(const T& filling);
 
     size_t m() const { return m_; }
@@ -55,22 +64,34 @@ class Matrix {
 
     size_t size() const { return size_; }
 
-    Matrix<T> inverse() const;
+    Matrix<T> inv() const;
     T det() const;
     int rank() const;
 
     T& operator()(size_t i, size_t j);
+
+    const T& operator()(size_t i, size_t j) const;
+
     Matrix<T>& operator=(const Matrix<T>& M);
-    Matrix<T>& operator=(Matrix<T>&& M);
+    Matrix<T>& operator=(Matrix<T>&& M) noexcept;
 
     Matrix<T> operator+(const Matrix<T>& M) const;
     Matrix<T> operator-(const Matrix<T>& M) const;
     Matrix<T> operator*(const Matrix<T>& M) const;
-    Matrix<T> operator*(T c) const;
+    Matrix<T> operator*(const T& c) const;
+   
 
     Matrix<T>& operator+=(const Matrix<T>& M);
+    Matrix<T>& operator+=(Matrix<T>&& M) noexcept {
+        return *this += M;
+    }
+
     Matrix<T>& operator-=(const Matrix<T>& M);
-    Matrix<T>& operator*=(T c);
+    Matrix<T>& operator-=(Matrix<T>&& M) {
+        return *this += M;
+    }
+
+    Matrix<T>& operator*=(const T& c);
 
     Matrix<T> transpose() const;
 };
@@ -80,6 +101,11 @@ std::ostream& operator<<(std::ostream& os, Matrix<T>& M);
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, Matrix<T>&& M);
+
+template <typename T>
+inline Matrix<T> operator*(const T& c, const Matrix<T>& M) {
+        return M *= c;
+}
 
 template <typename T>
 Matrix<T> rand_int_matrix(size_t m, size_t n);
@@ -127,10 +153,10 @@ inline T abs(const T& n) {
 }
 
 template <typename T>
-Matrix<T> inverse(Matrix<T> M);
+Matrix<T> inverse(const Matrix<T>& Mat);
 
 template <typename T>
-T det(Matrix<T> M);
+T determinant(Matrix<T> M);
 
 template <typename T>
 int rank(Matrix<T> M);

@@ -9,30 +9,30 @@
 class Real {
 private:
     Integer num_;
-    long long point_;
+    long long point_ = 0;
     void remove_zeros() {
-        while (num_.size() > 1 and num_.nums_.front() == 0) {
+        while (num_.size() > 1 && num_.nums_.front() == 0) {
             num_.nums_.pop_front();
         }
+        if (num_.nums_.size() == 1 && if_zero()) {
+            point_ = 0;
+            num_.sign_ = true;
+        }
     }
 
-    void move_point(size_t step);
+    void add_zeros(size_t num_of_zeros) {
+        num_.append_zeros(num_of_zeros);
+    }
 
     bool if_zero() const {
-        bool res = false;
-        if (num_ == Integer("0")) {
-            res = true;
-        }
-        return res;
+        return num_.if_zero();
     }
 
-    static const size_t default_max_length = 10;
-    static size_t max_length;
 
 public:
+    static long long default_precision;
     Real() {
         num_ = Integer();
-        point_ = 0;
     }
 
     ~Real() {}
@@ -58,6 +58,10 @@ public:
 
     explicit Real(const std::string& str, long long point = 0);
 
+    Real(const Real& num) : num_{ num.num_ }, point_{ num.point_ } {}
+
+    Real(Real&& num) noexcept : num_{ std::move(num.num_) }, point_{ num.point_ } {}
+
     size_t size() const {
         return num_.size();
     }
@@ -67,22 +71,14 @@ public:
     }
 
     short operator[](long long index) const {
-        if (point_ <= index < point_ + size()) {
+        if (index <= point_ && index > point_ - (long long) size()) {
             return num_[index + size() - 1 - point_];
         } else {
             return 0;
         }
     }
 
-    void shrink(size_t digits) {
-        while (num_.size() > digits) {
-            num_.nums_.pop_front();
-        }
-    }
-
-    void expand(size_t digits) {
-        move_point(digits);
-    }
+    void round(long long digits);
 
     Real& operator=(long long num) {
         *this = Real(std::to_string(num));
@@ -120,6 +116,12 @@ public:
         return *this;
     }
 
+    Real& operator=(Real&& num) noexcept {
+        num_ = std::move(num.num_);
+        point_ = num.point_;
+        return *this;
+    }
+
     Real abs() const {
         Real abs_num = *this;
         abs_num.num_ = num_.abs();
@@ -137,22 +139,27 @@ public:
         return minus_a;
     }
 
-    Real& operator+=(Real a) {
+    Real& operator+=(const Real& a) {
         *this = *this + a;
         return *this;
     }
 
-    Real& operator-=(Real a) {
+    Real& operator+=(Real&& a) {
+        *this = *this + a;
+        return *this;
+    }
+
+    Real& operator-=(const Real& a) {
         *this = *this - a;
         return *this;
     }
 
-    Real& operator*=(Real a) {
+    Real& operator*=(const Real& a) {
         *this = *this * a;
         return *this;
     }
 
-    Real& operator/=(Real a) {
+    Real& operator/=(const Real& a) {
         *this = *this / a;
         return *this;
     }
@@ -161,19 +168,19 @@ public:
     friend bool operator==(const Real& a, const Real& b);
 
     friend bool operator<(const Real& a, const Real& b) {
-        return not (a > b or a == b);
+        return !(a > b || a == b);
     }
 
     friend bool operator!=(const Real& a, const Real& b) {
-        return not (a == b);
+        return !(a == b);
     }
 
     friend bool operator>=(const Real& a, const Real& b) {
-        return not (a < b);
+        return !(a < b);
     }
 
     friend bool operator<=(const Real& a, const Real& b) {
-        return not (a > b);
+        return !(a > b);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Real& num);

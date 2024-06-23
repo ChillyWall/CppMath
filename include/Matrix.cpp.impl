@@ -5,14 +5,13 @@
 /// @param m 行数
 /// @param n 列数
 template <typename T>
-Matrix<T>::Matrix(size_t m, size_t n) {
-    m_ = m;
-    n_ = n;
-    size_ = m_ * n_;
-    data_ = pd(new T * [size_]);
+Matrix<T>::Matrix(size_t m, size_t n) :
+    m_{ m },
+    n_{ n },
+    size_{ m * n } {
+    data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T;
-        *(data_[i]) = T(0);
+        data_[i] = ptr<T>(new T);
     }
 }
 
@@ -22,16 +21,8 @@ Matrix<T>::Matrix(size_t m, size_t n) {
 /// @param n 列数
 /// @param data 矩阵所有元素的按照先行再列的一维排列
 template<typename T>
-Matrix<T>::Matrix(size_t m, size_t n, ild data) {
-    m_ = m;
-    n_ = n;
-    size_ = m_ * n_;
-    data_ = pd(new T * [size_]);
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T;
-        *(data_[i]) = T(0);
-    }
-    set(data);
+Matrix<T>::Matrix(size_t m, size_t n, const ild& data) {
+    set(m, n, data);
 }
 
 /// @brief 初始化矩阵，全部填充为同一个元素
@@ -40,14 +31,13 @@ Matrix<T>::Matrix(size_t m, size_t n, ild data) {
 /// @param n 列数
 /// @param filling 被填充的元素
 template<typename T>
-Matrix<T>::Matrix(size_t m, size_t n, T filling) {
-    m_ = m;
-    n_ = n;
-    size_ = m_ * n_;
-    data_ = pd(new T * [size_]);
+Matrix<T>::Matrix(size_t m, size_t n, const T& filling) :
+    m_{ m },
+    n_{ n },
+    size_{ m * n } {
+    data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T;
-        *(data_[i]) = T(0);
+        data_[i] = ptr<T>(new T);
     }
     fill(filling);
 }
@@ -56,19 +46,14 @@ Matrix<T>::Matrix(size_t m, size_t n, T filling) {
 /// @tparam T 元素数据类型
 /// @param M 被复制的矩阵
 template<typename T>
-Matrix<T>::Matrix(const Matrix<T>& M) {
-    m_ = M.m_;
-    n_ = M.n_;
-    size_ = m_ * n_;
-    data_ = pd(new T* [size_]);
+Matrix<T>::Matrix(const Matrix<T>& M) :
+    m_{ M.m_ },
+    n_{ M.n_ },
+    size_{ M.size_ } {
+    data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
-        if (M.data_[i]) {
-            data_[i] = new T();
-            *data_[i] = *M.data_[i];
-        } else {
-            data_[i] = new T;
-            *(data_[i]) = T(0);
-        }
+        data_[i] = ptr<T>(new T);
+        *data_[i] = *M.data_[i];
     }
 }
 
@@ -81,36 +66,41 @@ void Matrix<T>::length_check(size_t n) const {
 
 template <typename T>
 void Matrix<T>::shape_check1(const MatrixShape& sh) const {
-    if (sh.m != m_ or sh.n != n_) {
+    if (sh.m != m_ || sh.n != n_) {
         throw std::invalid_argument("To add or subtract the two matrices should have the same shape.");
-    }
-}
-
-/// @brief 设置矩阵元素
-/// @tparam T 元素数据类型
-/// @param data 矩阵所有元素的按照先行再列的一维排列，长度不得小于矩阵总元素个数。
-template<typename T>
-void Matrix<T>::set(ild data) {
-    length_check(data.size());
-    if (data.size() < size_)
-        throw std::out_of_range("。");
-    auto itr = data.begin();
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T();
-        *data_[i] = *(itr++);
     }
 }
 
 /// @brief 设置矩阵元素。
 /// @tparam T 元素数据类型
-/// @param data 矩阵所有元素的按照先行再列的一维排列，长度不得小于矩阵总元素个数。
+/// @param data 矩阵所有元素按照先行后列的一维排列，长度不得小于矩阵总元素个数。
+/// @param m 矩阵行数
+/// @param n 矩阵列数
 template<typename T>
-void Matrix<T>::set(vd data) {
+void Matrix<T>::set(size_t m, size_t n, const vd& data) {
+    m_ = m;
+    n_ = n;
+    size_ = m * n;
     length_check(data.size());
+    data_ = pd(new ptr<T>[size_]);
     auto itr = data.begin();
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T();
-        *data_[i] = *(itr++);
+        data_[i] = ptr<T>(new T);
+        *(data_[i]) = *(itr++);
+    }
+}
+
+template <typename T>
+void Matrix<T>::set(size_t m, size_t n, vd&& data) noexcept {
+    m_ = m;
+    n_ = n;
+    size_ = m * n;
+    data_ = pd(new ptr<T>[size_]);
+    auto itr = data.begin();
+    for (size_t i = 0; i < size_; i++) {
+        data_[i] = ptr<T>(new T);
+        *data_[i] = std::move(*itr);
+        itr = data.erase(itr);
     }
 }
 
@@ -120,24 +110,23 @@ void Matrix<T>::set(vd data) {
 template <typename T>
 void Matrix<T>::fill(const T& filling) {
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = new T();
         *data_[i] = filling;
     }
 }
 
 template <typename T>
-Matrix<T> Matrix<T>::inverse() const {
-    return inverse(*this);
+Matrix<T> Matrix<T>::inv() const {
+    return inverse(M);
 }
 
 template <typename T>
 T Matrix<T>::det() const {
-    return det(*this);
+    return determinant(M);
 }
 
 template <typename T>
 int Matrix<T>::rank() const {
-    return rank(*this);
+    return rank(M);
 }
 
 /// @brief 获取元素
@@ -148,10 +137,24 @@ int Matrix<T>::rank() const {
 template <typename T>
 T& Matrix<T>::operator()(size_t i, size_t j) {
     if (i >= m_)
-        throw std::out_of_range("Matrix::operator(): i >= this->m()");
+        throw std::out_of_range("Matrix::operator(): i >= m");
     if (j >= n_)
-        throw std::out_of_range("Matrix::operator(): j >= this->n()");
-    return *data_[i * n_ + j];
+        throw std::out_of_range("Matrix::operator(): j >= n");
+    return *(data_[i * n_ + j]);
+}
+
+/// @brief 获取元素
+/// @tparam T 元素数据类型
+/// @param i 行索引
+/// @param j 列索引
+/// @return 相应元素的引用，可修改。
+template <typename T>
+const T& Matrix<T>::operator()(size_t i, size_t j) const {
+    if (i >= m_)
+        throw std::out_of_range("Matrix::operator(): i >= m");
+    if (j >= n_)
+        throw std::out_of_range("Matrix::operator(): j >= n");
+    return *(data_[i * n_ + j]);
 }
 
 /// @brief 深复制矩阵，不改变被复制矩阵
@@ -162,12 +165,13 @@ template <typename T>
 Matrix<T>& Matrix<T>::operator=(const Matrix<T>& M) {
     m_ = M.m_;
     n_ = M.n_;
-    size_ = m_ * n_;
-    data_.reset(pd(new T[size_]).release());
+    size_ = M.size_;
+    data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
-        data_[i] = M.data_[i];
+        data_[i] = ptr<T>(new T);
+        *(data_[i]) = *(M.data_[i]);
     }
-    return *this;
+    return M;
 }
 
 /// @brief 直接转移矩阵的数据的所有权，之后将其删除。
@@ -175,12 +179,12 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& M) {
 /// @param M 被复制矩阵的右值引用.
 /// @return 本对象的引用
 template <typename T>
-Matrix<T>& Matrix<T>::operator=(Matrix<T>&& M) {
+Matrix<T>& Matrix<T>::operator=(Matrix<T>&& M) noexcept {
     m_ = M.m_;
     n_ = M.n_;
-    size_ = m_ * n_;
-    data_.reset(M.data_.release());
-    return *this;
+    size_ = M.size_;
+    data_ = std::move(M.data_);
+    return M;
 }
 
 /// @brief 矩阵相加，形状须完全相同，自行检查。
@@ -190,9 +194,9 @@ Matrix<T>& Matrix<T>::operator=(Matrix<T>&& M) {
 template <typename T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {
     shape_check1(M.shape());
-    Matrix<T> A(*this);
+    Matrix<T> A(M);
     for (size_t i = 0; i < size_; i++) {
-        A.data_[i] = data_[i] + M.data_[i];
+        *(A.data_[i]) += *(M.data_[i]);
     }
     return A;
 }
@@ -204,9 +208,9 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {
 template <typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {
     shape_check1(M.shape());
-    Matrix<T> A(*this);
+    Matrix<T> A(M);
     for (size_t i = 0; i < size_; i++) {
-        A.data_[i] = data_[i] - M.data_[i];
+        *(A.data_[i]) -= *(M.data_[i]);
     }
     return A;
 }
@@ -223,7 +227,7 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {
     for (size_t i = 0; i < m_; i++) {
         for (size_t j = 0; j < M.n_; j++) {
             for (size_t k = 0; k < n_; k++) {
-                *A.data_[i * M.n_ + j] += (* data_[i * n_ + k]) * (* M.data_[k * M.n_ + j]);
+                A(i, j) += this->operator()(i, k) * M(k, j);
             }
         }
     }
@@ -235,10 +239,10 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {
 /// @param c 常数
 /// @return 矩阵与常数的积
 template <typename T>
-Matrix<T> Matrix<T>::operator*(T c) const {
-    Matrix<T> A(*this);
+Matrix<T> Matrix<T>::operator*(const T& c) const {
+    Matrix<T> A(M);
     for (size_t i = 0; i < size_; i++) {
-        A.data_[i] *= c;
+        *(A.data_[i]) *= c;
     }
     return A;
 }
@@ -251,9 +255,9 @@ template <typename T>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
     shape_check1(M.shape());
     for (size_t i = 0; i < size_; i++) {
-        data_[i] += M.data_[i];
+        *(data_[i]) += *(M.data_[i]);
     }
-    return *this;
+    return M;
 }
 
 /// @brief 原矩阵直接减去被减矩阵
@@ -264,9 +268,9 @@ template <typename T>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M) {
     shape_check1(M.shape());
     for (size_t i = 0; i < size_; i++) {
-        data_[i] -= M.data_[i];
+        *(data_[i]) -= *(M.data_[i]);
     }
-    return *this;
+    return M;
 }
 
 /// @brief 原矩阵直接乘常数
@@ -274,11 +278,11 @@ Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M) {
 /// @param c 常数
 /// @return 本矩阵引用
 template <typename T>
-Matrix<T>& Matrix<T>::operator*=(T c) {
+Matrix<T>& Matrix<T>::operator*=(const T& c) {
     for (size_t i = 0; i < size_; i++) {
-        data_[i] *= c;
+        *(data_[i]) *= c;
     }
-    return *this;
+    return M;
 }
 
 /// @brief 得到矩阵的转置
@@ -289,7 +293,7 @@ Matrix<T> Matrix<T>::transpose() const {
     Matrix<T> A(n_, m_);
     for (size_t i = 0; i < n_; i++) {
         for (size_t j = 0; j < m_; j++) {
-            A.data_[i * n_ + j] = data_[j * m_ + i];
+            A(i, j) = this->operator()(j, i);
         }
     }
     return A;
@@ -304,17 +308,13 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, Matrix<T>& M) {
     using std::cout;
     using std::endl;
-    std::ios_base::fmtflags f(os.flags());
     for (size_t i = 0; i < M.m(); i++) {
         for (size_t j = 0; j < M.n(); j++) {
-            os.width(10);
-            os.precision(4);
-            os << std::fixed << M(i, j);
+            os << M(i, j) << "     ";
         }
         os << endl;
     }
     os << endl;
-    os.flags(f);
     return os;
 }
 
@@ -327,16 +327,13 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) {
     using std::cout;
     using std::endl;
-    std::ios_base::fmtflags f(os.flags());
     for (size_t i = 0; i < M.m(); i++) {
         for (size_t j = 0; j < M.n(); j++) {
-            os.width(10);
-            os << M(i, j);
+            os << M(i, j) << "     ";
         }
         os << endl;
     }
     os << endl;
-    os.flags(f);
     return os;
 }
 
@@ -363,7 +360,7 @@ Matrix<T> rand_int_matrix(size_t m, size_t n) {
     Matrix<T> M(m, n);
     std::default_random_engine e;
     e.seed(std::time(0));
-    std::uniform_int_distribution<T> s(-999, 999);
+    std::uniform_int_distribution<int> s(-999, 999);
     for (size_t i = 0; i < m; i++) {
         for (size_t j = 0; j < n; j++) {
             M(i, j) = s(e);
@@ -488,14 +485,13 @@ PLU_comp<T> PLU(const Matrix<T>& M) {
         res.P[i] = i;
     }
 
-    T var1, var2, l;
-    size_t target, var3;
+    size_t target;
     for (size_t i = 0; i < n - 1; i++) {
         // 寻找最大主元
-        var1 = abs(res.U(i, i));
+        T var1 = abs(res.U(i, i));
         target = i;
         for (size_t j = i + 1; j < n; j++) {
-            var2 = abs(res.U(j, i));
+            T var2 = abs(res.U(j, i));
             if (var2 > var1) {
                 var1 = var2;
                 target = j;
@@ -507,24 +503,24 @@ PLU_comp<T> PLU(const Matrix<T>& M) {
 
         // 换行
         if (i != target) {
-            var3 = res.P[i];
+            size_t var3 = res.P[i];
             res.P[i] = res.P[target];
             res.P[target] = var3;
             for (size_t j = 0; j < i; j++) {
-                var1 = res.L(i, j);
+                T var2 = res.L(i, j);
                 res.L(i, j) = res.L(target, j);
-                res.L(target, j) = var1;
+                res.L(target, j) = var2;
             }
             for (size_t j = i; j < n; j++) {
-                var1 = res.U(i, j);
+                T var2 = res.U(i, j);
                 res.U(i, j) = res.U(target, j);
-                res.U(target, j) = var1;
+                res.U(target, j) = var2;
             }
         }
 
         // 消元
         for (size_t j = i + 1; j < n; j++) {
-            l = res.U(j, i) / res.U(i, i);
+            T l = res.U(j, i) / res.U(i, i);
             res.L(j, i) = l;
             res.U(j, i) = T(0);
             for (size_t k = i + 1; k < n; k++) {
@@ -549,12 +545,17 @@ Matrix<T> exchange_rows(std::vector<size_t> P, Matrix<T>& M) {
 }
 
 template <typename T>
-Matrix<T> inverse(Matrix<T> M) {
+Matrix<T> inverse(const Matrix<T>& Mat) {
+    using std::cout;
+    using std::endl;
+    Matrix<T> M(Mat);
+
     if (M.m() != M.n())
         throw std::invalid_argument("M should be square matrix.");
     size_t n = M.n();
     Matrix<T> inv = Identity<T>(n);
-    T var1, var2, l;
+    T var1;
+    T var2;
     size_t target;
     for (size_t i = 0; i < n; i++) {
         // 寻找最大主元
@@ -569,32 +570,30 @@ Matrix<T> inverse(Matrix<T> M) {
         }
 
         if (var1 == T(0))
-            throw std::invalid_argument("M is indecomposable.");
+            throw std::invalid_argument("M is singular.");
 
-        // 换行
+        // exchange rows
         if (i != target) {
             for (size_t j = 0; j < n; j++) {
-                var1 = inv(i, j);
-                inv(i, j) = inv(target, j);
-                inv(target, j) = var1;
+                std::swap(inv(i, j), inv(target, j));
             }
             for (size_t j = i; j < n; j++) {
-                var1 = M(i, j);
-                M(i, j) = M(target, j);
-                M(target, j) = var1;
+                std::swap(M(i, j), M(target, j));
             }
         }
+        // eliminate
         for (size_t j = i + 1; j < n; j++) {
-            l = M(j, i) / M(i, i);
+            var2 = M(j, i) / M(i, i);
             M(j, i) = T(0);
             for (size_t k = 0; k < n; k++) {
-                inv(j, k) -= inv(i, k) * l;
+                inv(j, k) -= inv(i, k) * var2;
             }
             for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * l;
+                M(j, k) -= M(i, k) * var2;
             }
         }
     }
+    // back subtract
     for (size_t i = 1, ii = n - 2; i < n; i++, ii--) {
         for (size_t j = 0, jj = n - 1; j < i; j++, jj--) {
             l = M(ii, jj) / M(jj, jj);
@@ -604,6 +603,8 @@ Matrix<T> inverse(Matrix<T> M) {
             }
         }
     }
+
+    // divide the pivots
     for (size_t i = 0; i < n; i++) {
         for (size_t j = 0; j < n; j++) {
             inv(i, j) /= M(i, i);
@@ -613,16 +614,17 @@ Matrix<T> inverse(Matrix<T> M) {
 }
 
 template <typename T>
-T det(Matrix<T> M) {
+T determinant(Matrix<T> M) {
     if (M.m() != M.n())
         throw std::invalid_argument("M should be square matrix.");
     size_t n = M.n();
-    T var1, var2, l, determinant;
-    size_t target;
+    T determinant;
+    T var1;
+    T var2;
     for (size_t i = 0; i < n - 1; i++) {
         // 寻找最大主元
         var1 = abs(M(i, i));
-        target = i;
+        size_t target = i;
         for (size_t j = i + 1; j < n; j++) {
             var2 = abs(M(j, i));
             if (var2 > var1) {
@@ -637,18 +639,16 @@ T det(Matrix<T> M) {
         // 换行
         if (i != target) {
             for (size_t j = i; j < n; j++) {
-                var1 = M(i, j);
-                M(i, j) = M(target, j);
-                M(target, j) = var1;
+                std::swap(M(i, j), M(target, j));
             }
         }
 
         // 消元
         for (size_t j = i + 1; j < n; j++) {
-            l = M(j, i) / M(i, i);
+            var2 = M(j, i) / M(i, i);
             M(j, i) = T(0);
             for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * l;
+                M(j, k) -= M(i, k) * var2;
             }
         }
     }
@@ -664,12 +664,14 @@ int rank(Matrix<T> M) {
     size_t m = M.m();
     size_t n = M.n();
     int rank = 0;
-    for (size_t i = 0; i < n and i < m; i++) {
+    T var1;
+    T var2;
+    for (size_t i = 0; i < n && i < m; i++) {
         // 寻找最大主元
-        T var1 = abs(M(i, i));
-        T target = i;
+        var1 = abs(M(i, i));
+        size_t target = i;
         for (size_t j = i + 1; j < m; j++) {
-            T var2 = abs(M(j, i));
+            var2 = abs(M(j, i));
             if (var2 > var1) {
                 var1 = var2;
                 target = j;
@@ -692,18 +694,18 @@ int rank(Matrix<T> M) {
         // 换行
         if (i != target) {
             for (size_t j = i; j < n; j++) {
-                T var3 = M(i, j);
+                var2 = M(i, j);
                 M(i, j) = M(target, j);
-                M(target, j) = var3;
+                M(target, j) = var2;
             }
         }
 
         // 消元
         for (size_t j = i + 1; j < m; j++) {
-            T l = M(j, i) / M(i, i);
+            var2 = M(j, i) / M(i, i);
             M(j, i) = T(0);
             for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * l;
+                M(j, k) -= M(i, k) * var2;
             }
         }
     }
