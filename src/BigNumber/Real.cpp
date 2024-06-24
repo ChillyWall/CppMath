@@ -35,13 +35,13 @@ Real::Real(const std::string& str, long long point) {
 }
 
 void Real::round(long long digits) {
-    long long dist = point_ - (long long)size() + 1 - digits;
+    long long dist = point_ - (long long) size() + 1 - digits;
     if (dist < 0LL) {
         while (dist < -1) {
             if (num_.nums_.size() == 1) {
                 num_.nums_.front() = 0;
                 point_ = 0;
-                return ;
+                return;
             }
             num_.nums_.pop_front();
             dist++;
@@ -61,7 +61,7 @@ void Real::round(long long digits) {
             num_.nums_.front() = 0;
             if (!if_carry) {
                 point_ = 0;
-            }   
+            }
         }
 
         if (if_carry) {
@@ -138,7 +138,7 @@ Real operator-(const Real& a, const Real& b) {
 Real operator*(const Real& a, const Real& b) {
     Real res;
     res.num_ = a.num_ * b.num_;
-    res.point_ = a.point_ + b.point_ + (long long)(res.size() - a.size() - b.size()) + 1LL;
+    res.point_ = a.point_ + b.point_ + (long long) (res.size() - a.size() - b.size()) + 1LL;
     res.round(-Real::default_precision);
     return res;
 }
@@ -151,7 +151,7 @@ Real operator/(const Real& a, const Real& b) {
         return Real(0);
     }
     Real res(a);
-    long long dist = a.point_ - b.point_ - (long long)a.size() + Real::default_precision + (long long)b.size() + 2;
+    long long dist = a.point_ - b.point_ - (long long) a.size() + Real::default_precision + (long long) b.size() + 2;
     if (dist > 0LL) {
         res.add_zeros(dist);
     } else {
