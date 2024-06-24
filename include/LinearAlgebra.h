@@ -100,7 +100,7 @@ template <typename T>
 std::ostream& operator<<(std::ostream& os, Matrix<T>& M);
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, Matrix<T>&& M);
+std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) noexcept;
 
 template <typename T>
 inline Matrix<T> operator*(const T& c, const Matrix<T>& M) {
@@ -145,7 +145,10 @@ template <typename T>
 PLU_comp<T> PLU(const Matrix<T>& A);
 
 template <typename T>
-Matrix<T> exchange_rows(std::vector<size_t> P, Matrix<T>& M);
+Matrix<T> permutation_matrix(size_t m, size_t n, vector<size_t> P);
+
+template <typename T>
+Matrix<T> exchange_rows(const std::vector<size_t>&& P, Matrix<T>& M);
 
 template <typename T>
 inline T abs(const T& n) {

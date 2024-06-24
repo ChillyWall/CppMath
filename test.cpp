@@ -10,15 +10,26 @@ void test1()
     default_random_engine e;
     e.seed(time(0));
     uniform_real_distribution<long double> s(-1000, 1000);
+    Real a;
+    Real b;
+    double ad;
+    double bd;
     for (int i = 100; i > 0; i--)
     {
-        Real a(s(e) * 10000);
-        Real b(s(e));
-        cout << "a: " << a << ",   b: " << b << endl
+        ad = s(e);
+        bd = s(e);
+        a = ad;
+        b = bd;
+        cout << "Real:\na: " << a << ",   b: " << b << endl
              << "a + b = " << a + b << endl
              << "a - b = " << a - b << endl
              << "a * b = " << a * b << endl
-             << "a / b = " << a / b << endl;
+             << "a / b = " << a / b << endl
+             << "\ndouble:\na: " << ad << ",   b: " << bd << endl
+             << "a + b = " << ad + bd << endl
+             << "a - b = " << ad - bd << endl
+             << "a * b = " << ad * bd << endl
+             << "a / b = " << ad / bd << endl;
     }
 }
 
@@ -76,6 +87,6 @@ void test4()
 
 int main()
 {
-    test2();
+    test1();
     return 0;
 }

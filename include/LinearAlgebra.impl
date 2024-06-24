@@ -306,7 +306,6 @@ Matrix<T> Matrix<T>::transpose() const {
 /// @return ostream流对象
 template <typename T>
 std::ostream& operator<<(std::ostream& os, Matrix<T>& M) {
-    using std::cout;
     using std::endl;
     for (size_t i = 0; i < M.m(); i++) {
         for (size_t j = 0; j < M.n(); j++) {
@@ -324,8 +323,7 @@ std::ostream& operator<<(std::ostream& os, Matrix<T>& M) {
 /// @param M 被打印矩阵
 /// @return ostream流对象
 template <typename T>
-std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) {
-    using std::cout;
+std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) noexcept {
     using std::endl;
     for (size_t i = 0; i < M.m(); i++) {
         for (size_t j = 0; j < M.n(); j++) {
@@ -395,10 +393,10 @@ Matrix<T> rand_real_matrix(size_t m, size_t n) {
 /// @return 对角矩阵
 template <typename T>
 Matrix<T> diag_matrix(size_t n, std::vector<T>& data) {
-    Matrix<T> A(n, n, T(0));
     if (data.size() < n) {
         throw std::out_of_range("diag_matrix: data.size() < n");
     }
+    Matrix<T> A(n, n, T(0));
     for (size_t i = 0; i < n; i++) {
         A(i, i) = data[i];
     }
@@ -473,7 +471,7 @@ LDU_comp<T> LDU(const Matrix<T>& M) {
 /// @return PLU分解
 template <typename T>
 PLU_comp<T> PLU(const Matrix<T>& M) {
-    if (M.m() != M.n())
+    if (!if_square(M));
         throw std::invalid_argument("M should be square matrix.");
 
     PLU_comp<T> res;
@@ -532,7 +530,13 @@ PLU_comp<T> PLU(const Matrix<T>& M) {
 }
 
 template <typename T>
-Matrix<T> exchange_rows(std::vector<size_t> P, Matrix<T>& M) {
+Matrix<T> exchange_rows(const std::vector<size_t>& P, Matrix<T>& M) {
+    if (!if_square(M)) {
+        throw std::invalid_argument("The M should be square matrix.");
+    }
+    if (P.size() < M.n()) {
+        throw std::out_of_range("P does's have sufficient elements.");
+    }
     Matrix<T> A(M.m(), M.n());
     size_t tar;
     for (size_t i = 0; i < M.m(); i++) {
@@ -546,12 +550,10 @@ Matrix<T> exchange_rows(std::vector<size_t> P, Matrix<T>& M) {
 
 template <typename T>
 Matrix<T> inverse(const Matrix<T>& Mat) {
-    using std::cout;
-    using std::endl;
-    Matrix<T> M(Mat);
-
-    if (M.m() != M.n())
+    if (!if_square(Mat)) {
         throw std::invalid_argument("M should be square matrix.");
+    }
+    Matrix<T> M(Mat);
     size_t n = M.n();
     Matrix<T> inv = Identity<T>(n);
     T var1;
@@ -570,7 +572,7 @@ Matrix<T> inverse(const Matrix<T>& Mat) {
         }
 
         if (var1 == T(0))
-            throw std::invalid_argument("M is singular.");
+            throw std::invalid_argument("M can't be singular.");
 
         // exchange rows
         if (i != target) {
@@ -592,9 +594,7 @@ Matrix<T> inverse(const Matrix<T>& Mat) {
                 M(j, k) -= M(i, k) * var2;
             }
         }
-        cout << "M: " << endl << M << endl << "inv:" << endl << inv << endl;
     }
-    cout << "The original: " << endl << M << endl << "The inverse: " << endl << inv << endl;
     // back subtract
     for (size_t i = 1, ii = n - 2; i < n; i++, ii--) {
         for (size_t j = 0, jj = n - 1; j < i; j++, jj--) {
