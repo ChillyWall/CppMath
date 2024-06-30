@@ -1,716 +1,689 @@
-#include "LinearAlgebra.h"
 
-/// @brief 分配内存，未初始化元素值
-/// @tparam T 元素的类型
-/// @param m 行数
-/// @param n 列数
-template <typename T>
-Matrix<T>::Matrix(size_t m, size_t n) :
-    m_ { m },
-    n_ { n },
-    size_ { m * n } {
-    data_ = pd(new ptr<T>[size_]);
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-    }
+
+///@brief分配内存，未初始化元素值
+///@tparamT元素的类型
+///@paramm行数
+///@paramn列数
+template<typenameT>
+Matrix<T>::Matrix(constsize_tm,constsize_tn):
+m_{m},
+n_{n},
+size_{m*n}{
+data_=pd(newptr<T>[size_]);
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+}
 }
 
-/// @brief 初始化矩阵
-/// @tparam T 元素数据类型
-/// @param m 行数
-/// @param n 列数
-/// @param data 矩阵所有元素的按照先行再列的一维排列
-template<typename T>
-Matrix<T>::Matrix(size_t m, size_t n, const ild& data) {
-    set(m, n, data);
+///@brief初始化矩阵
+///@tparamT元素数据类型
+///@paramm行数
+///@paramn列数
+///@paramdata矩阵所有元素的按照先行再列的一维排列
+template<typenameT>
+Matrix<T>::Matrix(constsize_tm,constsize_tn,constild&data){
+set(m,n,data);
 }
 
-/// @brief 初始化矩阵，全部填充为同一个元素
-/// @tparam T 元素数据类型
-/// @param m 行数
-/// @param n 列数
-/// @param filling 被填充的元素
-template<typename T>
-Matrix<T>::Matrix(size_t m, size_t n, const T& filling) : 
-    m_ { m },
-    n_ { n },
-    size_ { m * n } {
-    data_ = pd(new ptr<T>[size_]);
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-    }
-    fill(filling);
+///@brief初始化矩阵，全部填充为同一个元素
+///@tparamT元素数据类型
+///@paramm行数
+///@paramn列数
+///@paramfilling被填充的元素
+template<typenameT>
+Matrix<T>::Matrix(constsize_tm,constsize_tn,constT&filling):
+m_{m},
+n_{n},
+size_{m*n}{
+data_=pd(newptr<T>[size_]);
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+}
+fill(filling);
 }
 
-/// @brief 深复制矩阵，不修改被复制的矩阵
-/// @tparam T 元素数据类型
-/// @param M 被复制的矩阵
-template<typename T>
-Matrix<T>::Matrix(const Matrix<T>& M) :
-    m_ { M.m_ },
-    n_ { M.n_ },
-    size_ { M.size_ } {
-    data_ = pd(new ptr<T>[size_]);
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-        *data_[i] = *M.data_[i];
-    }
+///@brief深复制矩阵，不修改被复制的矩阵
+///@tparamT元素数据类型
+///@paramM被复制的矩阵
+template<typenameT>
+Matrix<T>::Matrix(constMatrix<T>&M):
+m_{M.m_},
+n_{M.n_},
+size_{M.size_}{
+data_=pd(newptr<T>[size_]);
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+*data_[i]=*M.data_[i];
+}
 }
 
-template <typename T>
-void Matrix<T>::length_check(size_t n) const {
-    if (n < size_) {
-        throw std::invalid_argument("Matrix::length_check: data.size() < this->size()");
-    }
+template<typenameT>
+voidMatrix<T>::shape_check1(constsize_tm,constsize_tn)const{
+if(m!=m_||n!=n_){
+throwstd::invalid_argument("Toaddorsubtractthetwomatricesshouldhavethesameshape.");
+}
 }
 
-template <typename T>
-void Matrix<T>::shape_check1(const MatrixShape& sh) const {
-    if (sh.m != m_ || sh.n != n_) {
-        throw std::invalid_argument("To add or subtract the two matrices should have the same shape.");
-    }
+///@brief设置矩阵元素。
+///@tparamT元素数据类型
+///@paramdata矩阵所有元素按照先行后列的一维排列，长度不得小于矩阵总元素个数。
+///@paramm矩阵行数
+///@paramn矩阵列数
+template<typenameT>
+voidMatrix<T>::set(constsize_tm,constsize_tn,constvd&data){
+m_=m;
+n_=n;
+size_=m*n;
+length_check(data.size());
+data_=pd(newptr<T>[size_]);
+autoitr=data.begin();
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+*(data_[i])=*(itr++);
+}
 }
 
-/// @brief 设置矩阵元素。
-/// @tparam T 元素数据类型
-/// @param data 矩阵所有元素按照先行后列的一维排列，长度不得小于矩阵总元素个数。
-/// @param m 矩阵行数
-/// @param n 矩阵列数
-template<typename T>
-void Matrix<T>::set(size_t m, size_t n, const vd& data) {
-    m_ = m;
-    n_ = n;
-    size_ = m * n;
-    length_check(data.size());
-    data_ = pd(new ptr<T>[size_]);
-    auto itr = data.begin();
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-        *(data_[i]) = *(itr++);
-    }
+template<typenameT>
+voidMatrix<T>::set(constsize_tm,constsize_tn,vd&&data)noexcept{
+m_=m;
+n_=n;
+size_=m*n;
+data_=pd(newptr<T>[size_]);
+autoitr=data.begin();
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+*data_[i]=std::move(*itr);
+itr=data.erase(itr);
+}
 }
 
-template <typename T>
-void Matrix<T>::set(size_t m, size_t n, vd&& data) noexcept {
-    m_ = m;
-    n_ = n;
-    size_ = m * n;
-    data_ = pd(new ptr<T>[size_]);
-    auto itr = data.begin();
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-        *data_[i] = std::move(*itr);
-        itr = data.erase(itr);
-    }
+///@brief将矩阵所有位置填充为同一个元素
+///@tparamT元素数据类型
+///@paramfilling被填充元素
+template<typenameT>
+voidMatrix<T>::fill(constT&filling){
+for(size_ti=0;i<size_;i++){
+*data_[i]=filling;
+}
 }
 
-/// @brief 将矩阵所有位置填充为同一个元素
-/// @tparam T 元素数据类型
-/// @param filling 被填充元素
-template <typename T>
-void Matrix<T>::fill(const T& filling) {
-    for (size_t i = 0; i < size_; i++) {
-        *data_[i] = filling;
-    }
+template<typenameT>
+Matrix<T>Matrix<T>::inv()const{
+Matrix<T>Mat(*this);
+if(!if_square(Mat)){
+throwstd::invalid_argument("Mshouldbesquarematrix.");
+}
+Matrix<T>M(Mat);
+size_tn=M.n();
+Matrix<T>inverse=Identity<T>(n);
+Tvar1;
+Tvar2;
+for(size_ti=0;i<n;i++){
+//寻找最大主元
+var1=abs(M(i,i));
+size_ttarget=i;
+for(size_tj=i+1;j<n;j++){
+var2=abs(M(j,i));
+if(var2>var1){
+var1=var2;
+target=j;
+}
 }
 
-template <typename T>
-Matrix<T> Matrix<T>::inv() const {
-    return inverse(M);
+if(var1==T(0))
+throwstd::invalid_argument("Mcan'tbesingular.");
+
+//exchangerows
+if(i!=target){
+for(size_tj=0;j<n;j++){
+std::swap(inverse(i,j),inverse(target,j));
+}
+for(size_tj=i;j<n;j++){
+std::swap(M(i,j),M(target,j));
+}
+}
+//eliminate
+for(size_tj=i+1;j<n;j++){
+var2=M(j,i)/M(i,i);
+M(j,i)=T(0);
+for(size_tk=0;k<n;k++){
+inverse(j,k)-=inverse(i,k)*var2;
+}
+for(size_tk=i+1;k<n;k++){
+M(j,k)-=M(i,k)*var2;
+}
+}
+}
+//backsubtract
+for(size_ti=1,ii=n-2;i<n;i++,ii--){
+for(size_tj=0,jj=n-1;j<i;j++,jj--){
+var2=M(ii,jj)/M(jj,jj);
+M(ii,jj)=T(0);
+for(size_tk=0;k<n;k++){
+inverse(ii,k)-=inverse(jj,k)*var2;
+}
+}
 }
 
-template <typename T>
-T Matrix<T>::det() const {
-    return determinant(*this);
+//dividethepivots
+for(size_ti=0;i<n;i++){
+for(size_tj=0;j<n;j++){
+inverse(i,j)/=M(i,i);
+}
+}
+returninverse;
 }
 
-template <typename T>
-int Matrix<T>::rank() const {
-    return rank(M);
+template<typenameT>
+TMatrix<T>::det()const{
+Matrix<T>M(*this);
+if(!if_square(M))
+throwstd::invalid_argument("Mshouldbesquarematrix.");
+constsize_tn=M.n();
+Tdeterminant;
+Tvar1;
+Tvar2;
+for(size_ti=0;i<n-1;i++){
+//寻找最大主元
+var1=abs(M(i,i));
+size_ttarget=i;
+for(size_tj=i+1;j<n;j++){
+var2=abs(M(j,i));
+if(var2>var1){
+var1=var2;
+target=j;
+}
 }
 
-/// @brief 获取元素
-/// @tparam T 元素数据类型
-/// @param i 行索引
-/// @param j 列索引
-/// @return 相应元素的引用，可修改。
-template <typename T>
-T& Matrix<T>::operator()(size_t i, size_t j) {
-    if (i >= m_)
-        throw std::out_of_range("Matrix::operator(): i >= m");
-    if (j >= n_)
-        throw std::out_of_range("Matrix::operator(): j >= n");
-    return *(data_[i * n_ + j]);
+if(var1==T(0)){
+returnT(0);
 }
 
-/// @brief 获取元素
-/// @tparam T 元素数据类型
-/// @param i 行索引
-/// @param j 列索引
-/// @return 相应元素的引用，可修改。
-template <typename T>
-const T& Matrix<T>::operator()(size_t i, size_t j) const {
-    if (i >= m_)
-        throw std::out_of_range("Matrix::operator(): i >= m");
-    if (j >= n_)
-        throw std::out_of_range("Matrix::operator(): j >= n");
-    return *(data_[i * n_ + j]);
+//换行
+if(i!=target){
+for(size_tj=i;j<n;j++){
+std::swap(M(i,j),M(target,j));
+}
 }
 
-/// @brief 深复制矩阵，不改变被复制矩阵
-/// @tparam T 元素数据类型
-/// @param M 被复制矩阵的引用
-/// @return 本对象的引用
-template <typename T>
-Matrix<T>& Matrix<T>::operator=(const Matrix<T>& M) {
-    m_ = M.m_;
-    n_ = M.n_;
-    size_ = M.size_;
-    data_ = pd(new ptr<T>[size_]);
-    for (size_t i = 0; i < size_; i++) {
-        data_[i] = ptr<T>(new T);
-        *(data_[i]) = *(M.data_[i]);
-    }
-    return M;
+//消元
+for(size_tj=i+1;j<n;j++){
+var2=M(j,i)/M(i,i);
+M(j,i)=T(0);
+for(size_tk=i+1;k<n;k++){
+M(j,k)-=M(i,k)*var2;
+}
+}
+}
+determinant=M(0,0);
+for(size_ti=1;i<n;i++){
+determinant*=M(i,i);
+}
+returndeterminant;
 }
 
-/// @brief 直接转移矩阵的数据的所有权，之后将其删除。
-/// @tparam T 元素数据类型
-/// @param M 被复制矩阵的右值引用.
-/// @return 本对象的引用
-template <typename T>
-Matrix<T>& Matrix<T>::operator=(Matrix<T>&& M) noexcept {
-    m_ = M.m_;
-    n_ = M.n_;
-    size_ = M.size_;
-    data_ = std::move(M.data_);
-    return M;
+template<typenameT>
+size_tMatrix<T>::rank()const{
+Matrix<T>M(*this);
+constsize_tm=M.m();
+constsize_tn=M.n();
+size_tthe_rank=0;
+Tvar1;
+Tvar2;
+for(size_ti=0;i<n&&i<m;i++){
+//寻找最大主元
+var1=abs(M(i,i));
+size_ttarget=i;
+for(size_tj=i+1;j<m;j++){
+var2=abs(M(j,i));
+if(var2>var1){
+var1=var2;
+target=j;
+}
 }
 
-/// @brief 矩阵相加，形状须完全相同，自行检查。
-/// @tparam T 元素数据类型
-/// @param M 被加矩阵
-/// @return 两矩阵和
-template <typename T>
-Matrix<T> Matrix<T>::operator+(const Matrix<T>& M) const {
-    shape_check1(M.shape());
-    Matrix<T> A(M);
-    for (size_t i = 0; i < size_; i++) {
-        *(A.data_[i]) += *(M.data_[i]);
-    }
-    return A;
+if(var1==T(0)){
+if(i==m-1){
+for(size_tj=m;j<n;j++){
+if(M(i,j)!=0){
+the_rank+=1;
+}
+}
+}
+continue;
+}else{
+the_rank+=1;
 }
 
-/// @brief 矩阵相减，形状须完全相同，自行检查。
-/// @tparam T 元素数据类型
-/// @param M 被减矩阵
-/// @return 两矩阵差
-template <typename T>
-Matrix<T> Matrix<T>::operator-(const Matrix<T>& M) const {
-    shape_check1(M.shape());
-    Matrix<T> A(M);
-    for (size_t i = 0; i < size_; i++) {
-        *(A.data_[i]) -= *(M.data_[i]);
-    }
-    return A;
+//换行
+if(i!=target){
+for(size_tj=i;j<n;j++){
+var2=M(i,j);
+M(i,j)=M(target,j);
+M(target,j)=var2;
+}
 }
 
-/// @brief 矩阵相乘，矩阵列数须与被乘矩阵行数相同，自行检查。
-/// @tparam T 元素数据类型
-/// @param M 被乘矩阵
-/// @return 两矩阵积
-template <typename T>
-Matrix<T> Matrix<T>::operator*(const Matrix<T>& M) const {
-    if (n_ != M.m())
-        throw std::invalid_argument("To multiply, the first matrix's columns should be the same with the last matrix's rows.");
-    Matrix<T> A(m_, M.n_, T(0));
-    for (size_t i = 0; i < m_; i++) {
-        for (size_t j = 0; j < M.n_; j++) {
-            for (size_t k = 0; k < n_; k++) {
-                A(i, j) += this->operator()(i, k) * M(k, j);
-            }
-        }
-    }
-    return A;
+//消元
+for(size_tj=i+1;j<m;j++){
+var2=M(j,i)/M(i,i);
+M(j,i)=T(0);
+for(size_tk=i+1;k<n;k++){
+M(j,k)-=M(i,k)*var2;
+}
+}
+}
+returnthe_rank;
 }
 
-/// @brief 与常数相乘
-/// @tparam T 元素数据类型
-/// @param c 常数
-/// @return 矩阵与常数的积
-template <typename T>
-Matrix<T> Matrix<T>::operator*(const T& c) const {
-    Matrix<T> A(M);
-    for (size_t i = 0; i < size_; i++) {
-        *(A.data_[i]) *= c;
-    }
-    return A;
+///@brief获取元素
+///@tparamT元素数据类型
+///@parami行索引
+///@paramj列索引
+///@return相应元素的引用，可修改。
+template<typenameT>
+T&Matrix<T>::operator()(constsize_ti,constsize_tj){
+if(i>=m_)
+throwstd::out_of_range("Matrix::operator():i>=m");
+if(j>=n_)
+throwstd::out_of_range("Matrix::operator():j>=n");
+return*(data_[i*n_+j]);
 }
 
-/// @brief 原矩阵直接加上被加矩阵
-/// @tparam T 元素数据类型
-/// @param M 被加矩阵
-/// @return 本矩阵引用
-template <typename T>
-Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& M) {
-    shape_check1(M.shape());
-    for (size_t i = 0; i < size_; i++) {
-        *(data_[i]) += *(M.data_[i]);
-    }
-    return M;
+///@brief获取元素
+///@tparamT元素数据类型
+///@parami行索引
+///@paramj列索引
+///@return相应元素的引用，可修改。
+template<typenameT>
+constT&Matrix<T>::operator()(constsize_ti,constsize_tj)const{
+if(i>=m_)
+throwstd::out_of_range("Matrix::operator():i>=m");
+if(j>=n_)
+throwstd::out_of_range("Matrix::operator():j>=n");
+return*(data_[i*n_+j]);
 }
 
-/// @brief 原矩阵直接减去被减矩阵
-/// @tparam T 元素数据类型
-/// @param M 被减矩阵
-/// @return 本矩阵引用
-template <typename T>
-Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& M) {
-    shape_check1(M.shape());
-    for (size_t i = 0; i < size_; i++) {
-        *(data_[i]) -= *(M.data_[i]);
-    }
-    return M;
+///@brief深复制矩阵，不改变被复制矩阵
+///@tparamT元素数据类型
+///@paramM被复制矩阵的引用
+///@return本对象的引用
+template<typenameT>
+Matrix<T>&Matrix<T>::operator=(constMatrix<T>&M){
+m_=M.m_;
+n_=M.n_;
+size_=M.size_;
+data_=pd(newptr<T>[size_]);
+for(size_ti=0;i<size_;i++){
+data_[i]=ptr<T>(newT);
+*(data_[i])=*(M.data_[i]);
+}
+returnM;
 }
 
-/// @brief 原矩阵直接乘常数
-/// @tparam T 元素数据类型
-/// @param c 常数
-/// @return 本矩阵引用
-template <typename T>
-Matrix<T>& Matrix<T>::operator*=(const T& c) {
-    for (size_t i = 0; i < size_; i++) {
-        *(data_[i]) *= c;
-    }
-    return M;
+///@brief直接转移矩阵的数据的所有权，之后将其删除。
+///@tparamT元素数据类型
+///@paramM被复制矩阵的右值引用.
+///@return本对象的引用
+template<typenameT>
+Matrix<T>&Matrix<T>::operator=(Matrix<T>&&M)noexcept{
+m_=M.m_;
+n_=M.n_;
+size_=M.size_;
+data_=std::move(M.data_);
+returnM;
 }
 
-/// @brief 得到矩阵的转置
-/// @tparam T 元素数据类型
-/// @return 矩阵的转置
-template <typename T>
-Matrix<T> Matrix<T>::transpose() const {
-    Matrix<T> A(n_, m_);
-    for (size_t i = 0; i < n_; i++) {
-        for (size_t j = 0; j < m_; j++) {
-            A(i, j) = this->operator()(j, i);
-        }
-    }
-    return A;
+///@brief矩阵相加，形状须完全相同，自行检查。
+///@tparamT元素数据类型
+///@paramM被加矩阵
+///@return两矩阵和
+template<typenameT>
+Matrix<T>Matrix<T>::operator+(constMatrix<T>&M)const{
+shape_check1(M.m(),M.n());
+Matrix<T>A(M);
+for(size_ti=0;i<size_;i++){
+*(A.data_[i])+=*(M.data_[i]);
+}
+returnA;
 }
 
-/// @brief cout直接打印矩阵
-/// @tparam T 元素数据类型
-/// @param os ostream流对象
-/// @param M 被打印矩阵
-/// @return ostream流对象
-template <typename T>
-std::ostream& operator<<(std::ostream& os, Matrix<T>& M) {
-    using std::endl;
-    for (size_t i = 0; i < M.m(); i++) {
-        for (size_t j = 0; j < M.n(); j++) {
-            os << M(i, j) << "     ";
-        }
-        os << endl;
-    }
-    os << endl;
-    return os;
+///@brief矩阵相减，形状须完全相同，自行检查。
+///@tparamT元素数据类型
+///@paramM被减矩阵
+///@return两矩阵差
+template<typenameT>
+Matrix<T>Matrix<T>::operator-(constMatrix<T>&M)const{
+shape_check1(M.m(),M.n());
+Matrix<T>A(M);
+for(size_ti=0;i<size_;i++){
+*(A.data_[i])-=*(M.data_[i]);
+}
+returnA;
 }
 
-/// @brief cout直接打印矩阵
-/// @tparam T 元素数据类型
-/// @param os ostream流对象
-/// @param M 被打印矩阵
-/// @return ostream流对象
-template <typename T>
-std::ostream& operator<<(std::ostream& os, Matrix<T>&& M) noexcept {
-    using std::endl;
-    for (size_t i = 0; i < M.m(); i++) {
-        for (size_t j = 0; j < M.n(); j++) {
-            os << M(i, j) << "     ";
-        }
-        os << endl;
-    }
-    os << endl;
-    return os;
+///@brief矩阵相乘，矩阵列数须与被乘矩阵行数相同，自行检查。
+///@tparamT元素数据类型
+///@paramM被乘矩阵
+///@return两矩阵积
+template<typenameT>
+Matrix<T>Matrix<T>::operator*(constMatrix<T>&M)const{
+if(n_!=M.m())
+throwstd::invalid_argument("Tomultiply,thefirstmatrix'scolumnsshouldbethesamewiththelastmatrix'srows.");
+Matrix<T>A(m_,M.n_,T(0));
+for(size_ti=0;i<m_;i++){
+for(size_tj=0;j<M.n_;j++){
+for(size_tk=0;k<n_;k++){
+A(i,j)+=this->operator()(i,k)*M(k,j);
+}
+}
+}
+returnA;
 }
 
-/// @brief 得到单位矩阵
-/// @tparam T 元素数据类型
-/// @param n 行数/列数
-/// @return 单位矩阵
-template <typename T>
-Matrix<T> Identity(size_t n) {
-    Matrix<T> I(n, n, T(0));
-    for (size_t i = 0; i < n; i++) {
-        I(i, i) = T(1);
-    }
-    return I;
+///@brief与常数相乘
+///@tparamT元素数据类型
+///@paramc常数
+///@return矩阵与常数的积
+template<typenameT>
+Matrix<T>Matrix<T>::operator*(constT&c)const{
+Matrix<T>A(*this);
+for(size_ti=0;i<size_;i++){
+*(A.data_[i])*=c;
+}
+returnA;
 }
 
-/// @brief 得到随机整数矩阵，元素大小在0到999
-/// @tparam T 元素数据类型
-/// @param m 行数
-/// @param n 列数
-/// @return 随机矩阵
-template <typename T>
-Matrix<T> rand_int_matrix(size_t m, size_t n) {
-    Matrix<T> M(m, n);
-    std::default_random_engine e;
-    e.seed(std::time(0));
-    std::uniform_int_distribution<int> s(-999, 999);
-    for (size_t i = 0; i < m; i++) {
-        for (size_t j = 0; j < n; j++) {
-            M(i, j) = s(e);
-        }
-    }
-    return M;
+///@brief原矩阵直接加上被加矩阵
+///@tparamT元素数据类型
+///@paramM被加矩阵
+///@return本矩阵引用
+template<typenameT>
+Matrix<T>&Matrix<T>::operator+=(constMatrix<T>&M){
+shape_check1(M.m(),M.n());
+for(size_ti=0;i<size_;i++){
+*(data_[i])+=*(M.data_[i]);
+}
+returnM;
 }
 
-/// @brief 得到随机实数矩阵，大小0到1
-/// @tparam T 元素数据类型
-/// @param m 行数
-/// @param n 列数
-/// @return 随机实数矩阵
-template <typename T>
-Matrix<T> rand_real_matrix(size_t m, size_t n) {
-    Matrix<T> M(m, n);
-    std::default_random_engine e;
-    e.seed(std::time(0));
-    std::uniform_real_distribution<double> s(-1.0, 1.0);
-    for (size_t i = 0; i < m; i++) {
-        for (size_t j = 0; j < n; j++) {
-            M(i, j) = s(e);
-        }
-    }
-    return M;
+///@brief原矩阵直接减去被减矩阵
+///@tparamT元素数据类型
+///@paramM被减矩阵
+///@return本矩阵引用
+template<typenameT>
+Matrix<T>&Matrix<T>::operator-=(constMatrix<T>&M){
+shape_check1(M.m(),M.n());
+for(size_ti=0;i<size_;i++){
+*(data_[i])-=*(M.data_[i]);
+}
+returnM;
 }
 
-/// @brief 得到对角矩阵
-/// @tparam T 元素数据类型
-/// @param n 行数/列数
-/// @param data 对角线数据
-/// @return 对角矩阵
-template <typename T>
-Matrix<T> diag_matrix(size_t n, std::vector<T>& data) {
-    if (data.size() < n) {
-        throw std::out_of_range("diag_matrix: data.size() < n");
-    }
-    Matrix<T> A(n, n, T(0));
-    for (size_t i = 0; i < n; i++) {
-        A(i, i) = data[i];
-    }
-    return A;
+///@brief原矩阵直接乘常数
+///@tparamT元素数据类型
+///@paramc常数
+///@return本矩阵引用
+template<typenameT>
+Matrix<T>&Matrix<T>::operator*=(constT&c){
+for(size_ti=0;i<size_;i++){
+*(data_[i])*=c;
+}
+return*this;
 }
 
-/// @brief 进行LU分解
-/// @tparam T 元素数据类型
-/// @param M 被分解矩阵，其行数应等于列数
-/// @return LU分解
-template <typename T>
-LU_comp<T> LU(const Matrix<T>& M) {
-    if (M.m() != M.n())
-        throw std::invalid_argument("M should be square matrix.");
-    size_t n = M.n();
-    LU_comp<T> res { Identity<T>(n), M };
-    T l;
-    for (size_t i = 1; i < n; i++) {
-        for (size_t j = 0; j < i; j++) {
-            l = res.U(i, j) / res.U(j, j);
-            if (l == T(0)) {
-                throw std::invalid_argument("The matrix is indecomposable.");
-            }
-            res.L(i, j) = l;
-            res.U(i, j) = T(0);
-            for (size_t k = j + 1; k < n; k++) {
-                res.U(i, k) -= res.U(j, k) * l;
-            }
-        }
-    }
-    return res;
+///@brief得到矩阵的转置
+///@tparamT元素数据类型
+///@return矩阵的转置
+template<typenameT>
+Matrix<T>Matrix<T>::transpose()const{
+Matrix<T>A(n_,m_);
+for(size_ti=0;i<n_;i++){
+for(size_tj=0;j<m_;j++){
+A(i,j)=this->operator()(j,i);
+}
+}
+returnA;
 }
 
-/// @brief 进行LDU分解
-/// @tparam T 元素数据类型
-/// @param M 被分解矩阵，其行数应等于列数
-/// @return LDU分解
-template <typename T>
-LDU_comp<T> LDU(const Matrix<T>& M) {
-    if (M.m() != M.n())
-        throw std::invalid_argument("M should be square matrix.");
-    size_t n = M.n();
-    LDU_comp<T> res { Identity<T>(n), std::vector<T>(n), M };
-    T l;
-    for (size_t i = 1; i < n; i++) {
-        for (size_t j = 0; j < i; j++) {
-            l = res.U(i, j) / res.U(j, j);
-            if (l == T(0)) {
-                throw std::invalid_argument("The matrix is indecomposable.");
-            }
-            res.L(i, j) = l;
-            res.U(i, j) = T(0);
-            for (size_t k = j + 1; k < n; k++) {
-                res.U(i, k) -= res.U(j, k) * l;
-            }
-        }
-    }
-    for (size_t i = 0; i < n; i++) {
-        l = res.U(i, i);
-        res.D[i] = l;
-        res.U(i, i) = T(1);
-        for (size_t j = i + 1; j < n; j++) {
-            res.U(i, j) = res.U(i, j) / l;
-        }
-    }
-    return res;
+///@briefcout直接打印矩阵
+///@tparamT元素数据类型
+///@paramosostream流对象
+///@paramM被打印矩阵
+///@returnostream流对象
+template<typenameT>
+std::ostream&operator<<(std::ostream&os,Matrix<T>&M){
+usingstd::endl;
+for(size_ti=0;i<M.m();i++){
+for(size_tj=0;j<M.n();j++){
+os<<M(i,j)<<"";
+}
+os<<endl;
+}
+os<<endl;
+returnos;
 }
 
-/// @brief 进行PLU分解
-/// @tparam T 元素数据类型
-/// @param M 被分解矩阵，其行数应等于列数
-/// @return PLU分解
-template <typename T>
-PLU_comp<T> PLU(const Matrix<T>& M) {
-    if (!if_square(M));
-    throw std::invalid_argument("M should be square matrix.");
-
-    PLU_comp<T> res;
-    size_t n = M.n();
-    res.L = Identity<T>(n);
-    res.U = M;
-    res.P = std::vector<size_t>(n);
-    for (size_t i = 0; i < n; i++) {
-        res.P[i] = i;
-    }
-
-    size_t target;
-    for (size_t i = 0; i < n - 1; i++) {
-        // 寻找最大主元
-        T var1 = abs(res.U(i, i));
-        target = i;
-        for (size_t j = i + 1; j < n; j++) {
-            T var2 = abs(res.U(j, i));
-            if (var2 > var1) {
-                var1 = var2;
-                target = j;
-            }
-        }
-
-        if (var1 == T(0))
-            throw std::invalid_argument("The matrix is indecomposable.");
-
-        // 换行
-        if (i != target) {
-            size_t var3 = res.P[i];
-            res.P[i] = res.P[target];
-            res.P[target] = var3;
-            for (size_t j = 0; j < i; j++) {
-                T var2 = res.L(i, j);
-                res.L(i, j) = res.L(target, j);
-                res.L(target, j) = var2;
-            }
-            for (size_t j = i; j < n; j++) {
-                T var2 = res.U(i, j);
-                res.U(i, j) = res.U(target, j);
-                res.U(target, j) = var2;
-            }
-        }
-
-        // 消元
-        for (size_t j = i + 1; j < n; j++) {
-            T l = res.U(j, i) / res.U(i, i);
-            res.L(j, i) = l;
-            res.U(j, i) = T(0);
-            for (size_t k = i + 1; k < n; k++) {
-                res.U(j, k) -= res.U(i, k) * l;
-            }
-        }
-    }
-    return res;
+///@briefcout直接打印矩阵
+///@tparamT元素数据类型
+///@paramosostream流对象
+///@paramM被打印矩阵
+///@returnostream流对象
+template<typenameT>
+std::ostream&operator<<(std::ostream&os,Matrix<T>&&M)noexcept{
+usingstd::endl;
+for(size_ti=0;i<M.m();i++){
+for(size_tj=0;j<M.n();j++){
+os<<M(i,j)<<"";
+}
+os<<endl;
+}
+os<<endl;
+returnos;
 }
 
-template <typename T>
-Matrix<T> exchange_rows(const std::vector<size_t>& P, Matrix<T>& M) {
-    if (!if_square(M)) {
-        throw std::invalid_argument("The M should be square matrix.");
-    }
-    if (P.size() < M.n()) {
-        throw std::out_of_range("P does's have sufficient elements.");
-    }
-    Matrix<T> A(M.m(), M.n());
-    size_t tar;
-    for (size_t i = 0; i < M.m(); i++) {
-        tar = P[i];
-        for (size_t j = 0; j < M.n(); j++) {
-            A(i, j) = M(tar, j);
-        }
-    }
-    return A;
+///@brief得到单位矩阵
+///@tparamT元素数据类型
+///@paramn行数/列数
+///@return单位矩阵
+template<typenameT>
+Matrix<T>Identity(size_tn){
+Matrix<T>I(n,n,T(0));
+for(size_ti=0;i<n;i++){
+I(i,i)=T(1);
+}
+returnI;
 }
 
-template <typename T>
-Matrix<T> inverse(const Matrix<T>& Mat) {
-    if (!if_square(Mat)) {
-        throw std::invalid_argument("M should be square matrix.");
-    }
-    Matrix<T> M(Mat);
-    size_t n = M.n();
-    Matrix<T> inv = Identity<T>(n);
-    T var1;
-    T var2;
-    size_t target;
-    for (size_t i = 0; i < n; i++) {
-        // 寻找最大主元
-        var1 = abs(M(i, i));
-        target = i;
-        for (size_t j = i + 1; j < n; j++) {
-            var2 = abs(M(j, i));
-            if (var2 > var1) {
-                var1 = var2;
-                target = j;
-            }
-        }
-
-        if (var1 == T(0))
-            throw std::invalid_argument("M can't be singular.");
-
-        // exchange rows
-        if (i != target) {
-            for (size_t j = 0; j < n; j++) {
-                std::swap(inv(i, j), inv(target, j));
-            }
-            for (size_t j = i; j < n; j++) {
-                std::swap(M(i, j), M(target, j));
-            }
-        }
-        // eliminate
-        for (size_t j = i + 1; j < n; j++) {
-            var2 = M(j, i) / M(i, i);
-            M(j, i) = T(0);
-            for (size_t k = 0; k < n; k++) {
-                inv(j, k) -= inv(i, k) * var2;
-            }
-            for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * var2;
-            }
-        }
-    }
-    // back subtract
-    for (size_t i = 1, ii = n - 2; i < n; i++, ii--) {
-        for (size_t j = 0, jj = n - 1; j < i; j++, jj--) {
-            var2 = M(ii, jj) / M(jj, jj);
-            M(ii, jj) = T(0);
-            for (size_t k = 0; k < n; k++) {
-                inv(ii, k) -= inv(jj, k) * var2;
-            }
-        }
-    }
-
-    // divide the pivots
-    for (size_t i = 0; i < n; i++) {
-        for (size_t j = 0; j < n; j++) {
-            inv(i, j) /= M(i, i);
-        }
-    }
-    return inv;
+///@brief得到随机整数矩阵，元素大小在0到999
+///@tparamT元素数据类型
+///@paramm行数
+///@paramn列数
+///@return随机矩阵
+template<typenameT>
+Matrix<T>rand_int_matrix(size_tm,size_tn){
+Matrix<T>M(m,n);
+std::default_random_enginee;
+e.seed(std::time(0));
+std::uniform_int_distribution<int>s(-999,999);
+for(size_ti=0;i<m;i++){
+for(size_tj=0;j<n;j++){
+M(i,j)=s(e);
+}
+}
+returnM;
 }
 
-template <typename T>
-T determinant(Matrix<T> M) {
-    if (!if_square(M))
-        throw std::invalid_argument("M should be square matrix.");
-    size_t n = M.n();
-    T determinant;
-    T var1;
-    T var2;
-    for (size_t i = 0; i < n - 1; i++) {
-        // 寻找最大主元
-        var1 = abs(M(i, i));
-        size_t target = i;
-        for (size_t j = i + 1; j < n; j++) {
-            var2 = abs(M(j, i));
-            if (var2 > var1) {
-                var1 = var2;
-                target = j;
-            }
-        }
-
-        if (var1 == T(0)) {
-            return T(0);
-        }
-
-        // 换行
-        if (i != target) {
-            for (size_t j = i; j < n; j++) {
-                std::swap(M(i, j), M(target, j));
-            }
-        }
-
-        // 消元
-        for (size_t j = i + 1; j < n; j++) {
-            var2 = M(j, i) / M(i, i);
-            M(j, i) = T(0);
-            for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * var2;
-            }
-        }
-    }
-    determinant = M(0, 0);
-    for (size_t i = 1; i < n; i++) {
-        determinant *= M(i, i);
-    }
-    return determinant;
+///@brief得到随机实数矩阵，大小0到1
+///@tparamT元素数据类型
+///@paramm行数
+///@paramn列数
+///@return随机实数矩阵
+template<typenameT>
+Matrix<T>rand_real_matrix(size_tm,size_tn){
+Matrix<T>M(m,n);
+std::default_random_enginee;
+e.seed(std::time(0));
+std::uniform_real_distribution<double>s(-1.0,1.0);
+for(size_ti=0;i<m;i++){
+for(size_tj=0;j<n;j++){
+M(i,j)=s(e);
+}
+}
+returnM;
 }
 
-template <typename T>
-size_t rank(Matrix<T> M) {
-    size_t m = M.m();
-    size_t n = M.n();
-    size_t rank = 0;
-    T var1;
-    T var2;
-    for (size_t i = 0; i < n && i < m; i++) {
-        // 寻找最大主元
-        var1 = abs(M(i, i));
-        size_t target = i;
-        for (size_t j = i + 1; j < m; j++) {
-            var2 = abs(M(j, i));
-            if (var2 > var1) {
-                var1 = var2;
-                target = j;
-            }
-        }
+///@brief得到对角矩阵
+///@tparamT元素数据类型
+///@paramn行数/列数
+///@paramdata对角线数据
+///@return对角矩阵
+template<typenameT>
+Matrix<T>diag_matrix(size_tn,std::vector<T>&data){
+if(data.size()<n){
+throwstd::out_of_range("diag_matrix:data.size()<n");
+}
+Matrix<T>A(n,n,T(0));
+for(size_ti=0;i<n;i++){
+A(i,i)=data[i];
+}
+returnA;
+}
 
-        if (var1 == T(0)) {
-            if (i == m - 1) {
-                for (size_t j = m; j < n; j++) {
-                    if (M(i, j) != 0) {
-                        rank += 1;
-                    }
-                }
-            }
-            continue;
-        } else {
-            rank += 1;
-        }
+///@brief进行LU分解
+///@tparamT元素数据类型
+///@paramM被分解矩阵，其行数应等于列数
+///@returnLU分解
+template<typenameT>
+LU_comp<T>LU(constMatrix<T>&M){
+if(M.m()!=M.n())
+throwstd::invalid_argument("Mshouldbesquarematrix.");
+size_tn=M.n();
+LU_comp<T>res{Identity<T>(n),M};
+Tl;
+for(size_ti=1;i<n;i++){
+for(size_tj=0;j<i;j++){
+l=res.U(i,j)/res.U(j,j);
+if(l==T(0)){
+throwstd::invalid_argument("Thematrixisindecomposable.");
+}
+res.L(i,j)=l;
+res.U(i,j)=T(0);
+for(size_tk=j+1;k<n;k++){
+res.U(i,k)-=res.U(j,k)*l;
+}
+}
+}
+returnres;
+}
 
-        // 换行
-        if (i != target) {
-            for (size_t j = i; j < n; j++) {
-                var2 = M(i, j);
-                M(i, j) = M(target, j);
-                M(target, j) = var2;
-            }
-        }
+///@brief进行LDU分解
+///@tparamT元素数据类型
+///@paramM被分解矩阵，其行数应等于列数
+///@returnLDU分解
+template<typenameT>
+LDU_comp<T>LDU(constMatrix<T>&M){
+if(M.m()!=M.n())
+throwstd::invalid_argument("Mshouldbesquarematrix.");
+size_tn=M.n();
+LDU_comp<T>res{Identity<T>(n),std::vector<T>(n),M};
+Tl;
+for(size_ti=1;i<n;i++){
+for(size_tj=0;j<i;j++){
+l=res.U(i,j)/res.U(j,j);
+if(l==T(0)){
+throwstd::invalid_argument("Thematrixisindecomposable.");
+}
+res.L(i,j)=l;
+res.U(i,j)=T(0);
+for(size_tk=j+1;k<n;k++){
+res.U(i,k)-=res.U(j,k)*l;
+}
+}
+}
+for(size_ti=0;i<n;i++){
+l=res.U(i,i);
+res.D[i]=l;
+res.U(i,i)=T(1);
+for(size_tj=i+1;j<n;j++){
+res.U(i,j)/=l;
+}
+}
+returnres;
+}
 
-        // 消元
-        for (size_t j = i + 1; j < m; j++) {
-            var2 = M(j, i) / M(i, i);
-            M(j, i) = T(0);
-            for (size_t k = i + 1; k < n; k++) {
-                M(j, k) -= M(i, k) * var2;
-            }
-        }
-    }
-    return rank;
+///@brief进行PLU分解
+///@tparamT元素数据类型
+///@paramM被分解矩阵，其行数应等于列数
+///@returnPLU分解
+template<typenameT>
+PLU_comp<T>PLU(constMatrix<T>&M){
+if(!if_square(M))
+throwstd::invalid_argument("Mshouldbesquarematrix.");
+PLU_comp<T>res;
+constsize_tn=M.n();
+res.L=Identity<T>(n);
+res.U=M;
+res.P=std::vector<size_t>(n);
+for(size_ti=0;i<n;i++){
+res.P[i]=i;
+}
+
+Tvar1,var2;
+for(size_ti=0;i<n-1;i++){
+//寻找最大主元
+var1=abs(res.U(i,i));
+size_ttarget=i;
+for(size_tj=i+1;j<n;j++){
+var2=abs(res.U(j,i));
+if(var2>var1){
+var1=var2;
+target=j;
+}
+}
+
+if(var1==T(0))
+throwstd::invalid_argument("Thematrixisindecomposable.");
+
+//换行
+if(i!=target){
+std::swap(res.P[i],res.P[target]);
+for(size_tj=0;j<i;j++){
+std::swap(res.L(i,j),res.L(target,j));
+}
+for(size_tj=i;j<n;j++){
+std::swap(res.U(i,j),res.U(target,j));
+}
+}
+
+//消元
+for(size_tj=i+1;j<n;j++){
+var2=res.U(j,i)/res.U(i,i);
+res.L(j,i)=var2;
+res.U(j,i)=T(0);
+for(size_tk=i+1;k<n;k++){
+res.U(j,k)-=res.U(i,k)*var2;
+}
+}
+}
+returnres;
+}
+
+template<typenameT>
+Matrix<T>exchange_rows(conststd::vector<size_t>&P,Matrix<T>&M){
+if(!if_square(M)){
+throwstd::invalid_argument("TheMshouldbesquarematrix.");
+}
+if(P.size()<M.n()){
+throwstd::out_of_range("Pdoes'shavesufficientelements.");
+}
+Matrix<T>A(M.m(),M.n());
+size_ttar;
+for(size_ti=0;i<M.m();i++){
+tar=P[i];
+for(size_tj=0;j<M.n();j++){
+A(i,j)=M(tar,j);
+}
+}
+returnA;
 }

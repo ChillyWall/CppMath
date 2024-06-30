@@ -7,7 +7,7 @@
 #include <algorithm>
 
 class Real {
-private:
+    private:
     Integer num_;
     long long point_ = 0;
     void remove_zeros() {
@@ -29,7 +29,7 @@ private:
     }
 
 
-public:
+    public:
     static long long default_precision;
     Real() {
         num_ = Integer();
@@ -58,9 +58,17 @@ public:
 
     explicit Real(const std::string& str, long long point = 0);
 
-    Real(const Real& num) : num_{ num.num_ }, point_{ num.point_ } {}
+    Real(const Integer& i) : point_ {0} {
+        num_ = i;
+    }
 
-    Real(Real&& num) noexcept : num_{ std::move(num.num_) }, point_{ num.point_ } {}
+    Real(Integer&& i) noexcept : point_ {0} {
+        num_ = std::move(i);
+    }
+
+    Real(const Real& num) : num_ { num.num_ }, point_ { num.point_ } {}
+
+    Real(Real&& num) noexcept : num_ { std::move(num.num_) }, point_ { num.point_ } {}
 
     size_t size() const {
         return num_.size();
@@ -120,6 +128,16 @@ public:
         num_ = std::move(num.num_);
         point_ = num.point_;
         return *this;
+    }
+
+    Real& operator=(Integer&& num) noexcept {
+        point_ = 0;
+        num_ = std::move(num);
+    }
+
+    Real& operator=(const Integer& num) {
+        point_ = 0;
+        num_ = num;
     }
 
     Real abs() const {

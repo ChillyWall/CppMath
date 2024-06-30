@@ -7,7 +7,7 @@
 #include <iterator>
 
 class Integer {
-private:
+    private:
     std::deque<short> nums_;
     bool sign_ = true; // 0 is negative and 1 is positive
 
@@ -30,7 +30,7 @@ private:
 
     Integer multiply_single(short opnd) const;
 
-public:
+    public:
     Integer() {}
 
     ~Integer() {}
@@ -49,9 +49,9 @@ public:
 
     explicit Integer(const std::string& str);
 
-    Integer(const Integer& num) : nums_{ num.nums_ }, sign_{ num.sign_ } {}
+    Integer(const Integer& num) : nums_ { num.nums_ }, sign_ { num.sign_ } {}
 
-    Integer(Integer&& num) noexcept : sign_{ num.sign_ } {
+    Integer(Integer&& num) noexcept : sign_ { num.sign_ } {
         nums_ = std::move(num.nums_);
     }
 
