@@ -6,9 +6,9 @@
 /// @param n 列数
 template <typename T>
 Matrix<T>::Matrix(size_t m, size_t n) :
-    m_{ m },
-    n_{ n },
-    size_{ m * n } {
+    m_ { m },
+    n_ { n },
+    size_ { m * n } {
     data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
         data_[i] = ptr<T>(new T);
@@ -31,10 +31,10 @@ Matrix<T>::Matrix(size_t m, size_t n, const ild& data) {
 /// @param n 列数
 /// @param filling 被填充的元素
 template<typename T>
-Matrix<T>::Matrix(size_t m, size_t n, const T& filling) :
-    m_{ m },
-    n_{ n },
-    size_{ m * n } {
+Matrix<T>::Matrix(size_t m, size_t n, const T& filling) : 
+    m_ { m },
+    n_ { n },
+    size_ { m * n } {
     data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
         data_[i] = ptr<T>(new T);
@@ -47,9 +47,9 @@ Matrix<T>::Matrix(size_t m, size_t n, const T& filling) :
 /// @param M 被复制的矩阵
 template<typename T>
 Matrix<T>::Matrix(const Matrix<T>& M) :
-    m_{ M.m_ },
-    n_{ M.n_ },
-    size_{ M.size_ } {
+    m_ { M.m_ },
+    n_ { M.n_ },
+    size_ { M.size_ } {
     data_ = pd(new ptr<T>[size_]);
     for (size_t i = 0; i < size_; i++) {
         data_[i] = ptr<T>(new T);
@@ -121,7 +121,7 @@ Matrix<T> Matrix<T>::inv() const {
 
 template <typename T>
 T Matrix<T>::det() const {
-    return determinant(M);
+    return determinant(*this);
 }
 
 template <typename T>
@@ -412,7 +412,7 @@ LU_comp<T> LU(const Matrix<T>& M) {
     if (M.m() != M.n())
         throw std::invalid_argument("M should be square matrix.");
     size_t n = M.n();
-    LU_comp<T> res{ Identity<T>(n), M };
+    LU_comp<T> res { Identity<T>(n), M };
     T l;
     for (size_t i = 1; i < n; i++) {
         for (size_t j = 0; j < i; j++) {
@@ -439,7 +439,7 @@ LDU_comp<T> LDU(const Matrix<T>& M) {
     if (M.m() != M.n())
         throw std::invalid_argument("M should be square matrix.");
     size_t n = M.n();
-    LDU_comp<T> res{ Identity<T>(n), std::vector<T>(n), M };
+    LDU_comp<T> res { Identity<T>(n), std::vector<T>(n), M };
     T l;
     for (size_t i = 1; i < n; i++) {
         for (size_t j = 0; j < i; j++) {
@@ -472,7 +472,7 @@ LDU_comp<T> LDU(const Matrix<T>& M) {
 template <typename T>
 PLU_comp<T> PLU(const Matrix<T>& M) {
     if (!if_square(M));
-        throw std::invalid_argument("M should be square matrix.");
+    throw std::invalid_argument("M should be square matrix.");
 
     PLU_comp<T> res;
     size_t n = M.n();
